@@ -6,6 +6,7 @@ import { LineChartComp } from './LineChartComp';
 import { TickerInput } from './TickerInput';
 import { SearchFailMessage } from './SearchFailMessage';
 import { AdvancedAnalytics } from './AdvancedAnalytics';
+import { TickerInfo } from './TickerInfo';
 
 function App() {
 
@@ -61,15 +62,21 @@ function App() {
     }
   }
 
+  const successFullyFoundTicker = () => {
+    return tickerSearched && foundTicker;
+  }
+
+  const searchedForTickerAndFailed = () => {
+    return tickerSearched && !foundTicker;
+  }
+
   return (
     <div className="App">
-
       <header className="App-common App-body">
         <p className='text-5xl my-4 text-neutral-400'>Stock Sim</p>
         <TickerInput onTickerSearch={onTickerSearch} />
-        {tickerSearched && foundTicker && <LineChartComp tickerName={ticker} prices={prices} times={times} />}
-        {tickerSearched && !foundTicker && <SearchFailMessage ticker={ticker}/>}
-        {<AdvancedAnalytics/>}
+        {successFullyFoundTicker() && <TickerInfo tickerName={ticker} prices={prices} times={times} />}
+        {searchedForTickerAndFailed() && <SearchFailMessage ticker={ticker}/>}
       </header>
       <footer className="App-common App-footer"><p>&copy; 2024 Cliff Wilson. All rights reserved.</p></footer>
     </div>

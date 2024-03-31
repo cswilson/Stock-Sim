@@ -1,12 +1,11 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 interface LineChartProps {
-  tickerName: string
   prices: number[]
   times: number[]
 }
 
-export const LineChartComp: React.FC<LineChartProps> = ({ tickerName, prices, times }) => {
+export const LineChartComp: React.FC<LineChartProps> = ({ prices, times }) => {
 
   const generateData = (): any[] => {
 
@@ -25,7 +24,6 @@ export const LineChartComp: React.FC<LineChartProps> = ({ tickerName, prices, ti
   }
 
   return (
-    // <div className="my-5" style={{ width: '75vw', height: '50vh' }}>
     <div className="my-5" style={{ width: '90vw', height: '50vh' }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={generateData()}>
