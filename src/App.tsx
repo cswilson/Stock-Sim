@@ -72,7 +72,7 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-common App-body">
+      <header className="bg-neutral-950 App-common App-body">
         <p className='text-5xl my-4 text-neutral-400'>Stock Sim</p>
         <TickerInput onTickerSearch={onTickerSearch} />
         {successFullyFoundTicker() && <TickerInfo tickerName={ticker} prices={prices} times={times} />}

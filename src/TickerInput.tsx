@@ -40,10 +40,9 @@ export const TickerInput: React.FC<TickerInputProps> = ({ onTickerSearch }) => {
             onBlur={handleBlur}
             placeholder={hint}
             id="ticker"
-            // className="bg-zinc-800 text-center shadow appearance-none border rounded w-full py-2 px-3 text-neutral-400 placeholder-neutral-400 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-            className="text-2xl bg-zinc-800 text-center shadow appearance-none rounded w-full py-2 px-3 text-neutral-400 placeholder-neutral-600 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+            className="searchBox"
           />
-          <p className="text-neutral-500 text-xs italic">Enter a stock ticker symbol, such as (VTI, VOO, VXUS)</p>
+          <p className="text-neutral-500 mt-3 text-xs italic">Enter a stock ticker symbol, such as (VTI, VOO, VXUS)</p>
         </div>
       </form>
     </div>
