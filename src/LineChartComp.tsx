@@ -5,12 +5,13 @@ interface LineChartProps {
   times: number[]
 }
 
+//TODO use the context instead of taking props
 export const LineChartComp: React.FC<LineChartProps> = ({ prices, times }) => {
 
   const generateData = (): any[] => {
 
     const humanReadableTimes = times.map((time: number) => {
-      const date = new Date(time * 1000);
+      const date = new Date(time);
       const month = date.toLocaleString('default', { month: 'short' });
       const year = date.getFullYear();
       return `${month}-${year}`;
