@@ -5,7 +5,7 @@ interface SearchFailProps {
 export const SearchFailMessage: React.FC<SearchFailProps> = ({ticker}) => {
 
     return (
-        <p className="md:text-4xl text-lg text-red-800">Failed to find data for ticker: {ticker}</p>
+        <p className="md:text-4xl text-lg fail">Failed to find data for ticker: {ticker}</p>
     )
 
 }

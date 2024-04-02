@@ -17,7 +17,7 @@ export const AdvancedAnalytics: React.FC = () => {
 
     return (
         <div>
-            <div className="flex flex-col items-center gap-4 xl:flex-row">
+            <div className="flex flex-col justify-center items-center gap-4 xl:flex-row">
                 <div>
                     <button className="btn w-48 md:w-64" onClick={() => setCurrentMode(Mode.LumpSum)}>Lump Sum</button>
                 </div>
