@@ -21,7 +21,7 @@ code {
 }
 
 .searchBox {
-  @apply text-2xl bg-zinc-800 text-center shadow appearance-none rounded py-2 px-3 text-neutral-400 placeholder-neutral-600 leading-tight focus:outline-none 
+  @apply text-2xl bg-zinc-800 text-center shadow rounded py-2 px-3 text-neutral-400 placeholder-neutral-600 leading-tight focus:outline-none 
 }
 
 .success {

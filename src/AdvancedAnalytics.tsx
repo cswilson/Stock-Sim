@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import './App.css';
 import { LumpSum } from "./LumpSum";
+import { DCA } from "./DCA";
 
 export const AdvancedAnalytics: React.FC = () => {
 
@@ -29,7 +30,7 @@ export const AdvancedAnalytics: React.FC = () => {
                 </div>
             </div>
             {currentMode == Mode.LumpSum && <LumpSum/>}
-            {currentMode == Mode.DCA && <p>DCA</p>}
+            {currentMode == Mode.DCA && <DCA/>}
             {currentMode == Mode.BestWorst && <p>Best/Worst</p>}
         </div>
     );

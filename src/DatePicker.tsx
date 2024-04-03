@@ -1,5 +1,6 @@
 import { ChangeEventHandler, useState } from "react";
 
+//TODO replace this with just regular Date class in Javascript?
 export class MonthYearDate {
     public month: number;
     public year: number;

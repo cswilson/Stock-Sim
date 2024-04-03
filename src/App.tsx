@@ -35,11 +35,7 @@ class TimeSeriesData {
     return nearestIndex;
   }
 
-  public isTimeWithinRange(targetTimestamp: number):boolean {
-    console.log("Target " + targetTimestamp);
-    console.log("first " + this.times[0]);
-    console.log("last " + this.times[this.times.length - 1]);
-
+  public isTimeOutsideRange(targetTimestamp: number):boolean {
     const tooLow = targetTimestamp < this.times[0];
     const tooHigh = targetTimestamp > this.times[this.times.length - 1];
     return  tooLow || tooHigh;
