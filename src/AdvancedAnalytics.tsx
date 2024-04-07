@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import './App.css';
 import { LumpSum } from "./LumpSum";
 import { DCA } from "./DCA";
+import { BestWorstIntervals } from "./BestWorstIntervals";
 
 export const AdvancedAnalytics: React.FC = () => {
 
@@ -13,7 +14,6 @@ export const AdvancedAnalytics: React.FC = () => {
         None
     }
 
-    const [startDate, setStartDate] = useState(new Date());
     const [currentMode, setCurrentMode] = useState(Mode.None);
 
     return (
@@ -26,12 +26,12 @@ export const AdvancedAnalytics: React.FC = () => {
                     <button className="btn w-48 md:w-64" onClick={() => setCurrentMode(Mode.DCA)}>Dollar Cost Average</button>
                 </div>
                 <div>
-                    <button className="btn w-48 md:w-64" onClick={() => setCurrentMode(Mode.BestWorst)}>Best/Worst Periods</button>
+                    <button className="btn w-48 md:w-64" onClick={() => setCurrentMode(Mode.BestWorst)}>Best/Worst Intervals</button>
                 </div>
             </div>
             {currentMode == Mode.LumpSum && <LumpSum/>}
             {currentMode == Mode.DCA && <DCA/>}
-            {currentMode == Mode.BestWorst && <p>Best/Worst</p>}
+            {currentMode == Mode.BestWorst && <BestWorstIntervals/>}
         </div>
     );
 };

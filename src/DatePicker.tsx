@@ -1,45 +1,27 @@
-import { ChangeEventHandler, useState } from "react";
+import { useState } from "react";
 
-//TODO replace this with just regular Date class in Javascript?
-export class MonthYearDate {
-    public month: number;
-    public year: number;
-
-    constructor(month: number = 1, year: number = new Date().getFullYear()) {
-        this.month = month;
-        this.year = year;
-    }
-
-    public toTimestampMillis():number {
-        const date = new Date(this.year, this.month, 1);
-        console.log("Date is", date.getFullYear(), date.getMonth())
-        return date.getTime();
-    }
-
-    public toHumanReadableString():string {
-        const date = new Date(this.toTimestampMillis());
-        const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
-        return date.toLocaleString(undefined, options);
-    }
+export const dateToHumanReadableString = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+    return date.toLocaleString(undefined, options);
 }
 
 interface DatePickerProps {
-    onDateChange: (date: MonthYearDate) => void;
+    onDateChange: (date: Date) => void;
 }
 
 export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
-    const [date, setDate] = useState<MonthYearDate>(new MonthYearDate());
+    const [date, setDate] = useState<Date>(new Date());
 
     const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const { id, value } = event.target;
-        const updatedDate = new MonthYearDate(date.month, date.year);
-        if (id === "month") { updatedDate.month = parseInt(value);} 
-        else if (id === "year") {updatedDate.year = parseInt(value);}
+        const updatedDate = new Date(date.getFullYear(), date.getMonth(), 1);
+        if (id === "month") { updatedDate.setMonth(parseInt(value));} 
+        else if (id === "year") {updatedDate.setFullYear(parseInt(value));}
         setDate(updatedDate);
         onDateChange(updatedDate);
     }
 
-    //TODO get years based on date range
+    //TODO change years based on date range
     const [years] = useState(() => {
         const currentYear = new Date().getFullYear();
         const yearsArray = [];
@@ -51,7 +33,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
 
     return (
         <div className="flex justify-center items-center gap-4">
-            <select id="month" value={date.month} className="btn" onChange={handleDateChange}>
+            <select id="month" value={date.getMonth()} className="btn" onChange={handleDateChange}>
                 <option value={0}>Jan</option>
                 <option value={1}>Feb</option>
                 <option value={2}>Mar</option>
@@ -65,7 +47,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
                 <option value={10}>Nov</option>
                 <option value={11}>Dec</option>
             </select>
-            <select id="year" className="btn" value={date.year} onChange={handleDateChange}>
+            <select id="year" className="btn" value={date.getFullYear()} onChange={handleDateChange}>
                 {years.map(year => (
                     <option key={year.value} value={year.value}>{year.label}</option>
                 ))}

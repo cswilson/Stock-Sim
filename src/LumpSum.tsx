@@ -1,24 +1,24 @@
 import { useState } from "react";
-import { DatePicker, MonthYearDate } from "./DatePicker"
+import { DatePicker, dateToHumanReadableString} from "./DatePicker"
 import { useTickerContext } from "./App";
-import numeral from 'numeral';
 import { DollarAmountInput } from "./DollarAmountInput";
+import { buildInvestmentSummary } from "./InvestmentSummary";
+import { StringListDisplay } from "./StringListDisplay";
 
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
     const { ticker, prices, dividends } = useTickerContext();
-    const [date, setDate] = useState<MonthYearDate>(new MonthYearDate());
-    const [resultSummary, setResultSummary] = useState<string>("");
-    const [netProfitText, setNetProfitText] = useState<string>("");
-    const [percentGainText, setPercentGainText] = useState<string>("");
+    const [date, setDate] = useState<Date>(new Date());
     const [outputColor, setOutputColor] = useState<string>("");
+    const [summaryText, setSummaryText] = useState<string[]>([]);
 
+    //TODO figure out why calculations are slightly off?
     //TODO factor dividends into calculation
     const calculateLumpSum = () => {
-        const time = date.toTimestampMillis();
+        const time = date.getTime();
         if (prices.isTimeOutsideRange(time)) {
             setOutputColor("fail");
-            setResultSummary("No price data at provided date");
+            setSummaryText(["No price data at provided date"]);
         } else {
             const index = prices.getClosestTimeIndex(time);
             const costPerShare = prices.values[index];
@@ -26,23 +26,15 @@ export const LumpSum: React.FC = () => {
             const finalPrice = prices.values[prices.values.length - 1];
             const finalPortfolioValue = sharesBought * finalPrice;
 
-            const netGain = finalPortfolioValue - lumpSumAmount;
-            const percentageGain = ((finalPortfolioValue / lumpSumAmount) * 100) - 100;
+            const summary = buildInvestmentSummary(lumpSumAmount, finalPortfolioValue);
 
-            if (netGain >= 0) {
-                setOutputColor("success");
-            } else {
-                setOutputColor("fail");
-            }
-
-            const formattedLumpSumAmount = numeral(lumpSumAmount).format('0,0.00');
-            const formattedFinalPortfolioValue = numeral(finalPortfolioValue.toFixed(2)).format('0,0.00');
-            const formattedNetGain = numeral(netGain.toFixed(2)).format('0,0.00');
-            const formattedPercentageGain = numeral(percentageGain.toFixed(2)).format('0,0.00');
-
-            setResultSummary(`If you invested $${formattedLumpSumAmount} into ${ticker} in ${date.toHumanReadableString()} you would now have $${formattedFinalPortfolioValue}.`);
-            setNetProfitText(`Net Profit: $${formattedNetGain}`)
-            setPercentGainText(`Percentage Gain: ${formattedPercentageGain}%`)
+            setOutputColor(summary.outputColor);
+            //TODO include dividend payments in the summary
+            setSummaryText([
+                `If you invested $${summary.amountInvested} into ${ticker} in ${dateToHumanReadableString(date)} you would now have $${summary.finalValue}.`,
+                `Net Profit: $${summary.netGain}`,
+                `Percentage Gain: ${summary.percentGain}%`
+            ])
         }
     }
 
@@ -58,9 +50,7 @@ export const LumpSum: React.FC = () => {
             </div>
             <button className="btn mt-4" onClick={calculateLumpSum}>Calculate</button>
             <div className={`mt-4 text-2xl ${outputColor}`}>
-                <p>{resultSummary}</p>
-                <p>{netProfitText}</p>
-                <p>{percentGainText}</p>
+                <StringListDisplay strings={summaryText}></StringListDisplay>
             </div>
         </div>
     )
