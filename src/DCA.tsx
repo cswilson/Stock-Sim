@@ -1,16 +1,16 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { DollarAmountInput } from "./DollarAmountInput";
 import { DatePicker} from "./DatePicker";
-import { useTickerContext } from "./App";
 import { addMonths, addYears } from "date-fns";
 import PositiveNumberInput from "./PositiveNumberInput";
 import { buildInvestmentSummary } from "./InvestmentSummary";
 import { StringListDisplay } from "./StringListDisplay";
 import { DateUnit, DateUnitSelect } from "./DateUnit";
+import { TickerContext } from "./App";
 
 export const DCA: React.FC = () => {
 
-    const { ticker, prices, dividends } = useTickerContext();
+    const { ticker, prices, dividends } = useContext(TickerContext);
     const [dcaAmount, setDcaAmount] = useState<number>(0);
     const [initialDate, setInitialDate] = useState<Date>(new Date());
     const [increment, setIncrement] = useState<number>(1);

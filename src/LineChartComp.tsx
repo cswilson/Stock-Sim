@@ -1,16 +1,14 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { TimeSeriesData } from "./TickerData"
 
 interface LineChartProps {
-  prices: number[]
-  times: number[]
+  prices: TimeSeriesData
 }
 
-//TODO use the context instead of taking props
-export const LineChartComp: React.FC<LineChartProps> = ({ prices, times }) => {
+export const LineChartComp: React.FC<LineChartProps> = ({prices}) => {
 
   const generateData = (): any[] => {
-
-    const humanReadableTimes = times.map((time: number) => {
+    const humanReadableTimes = prices.times.map((time: number) => {
       const date = new Date(time);
       const month = date.toLocaleString('default', { month: 'short' });
       const year = date.getFullYear();
@@ -18,9 +16,10 @@ export const LineChartComp: React.FC<LineChartProps> = ({ prices, times }) => {
     })
 
     const data: any[] = [];
-    for (var i = 0; i < prices.length; i++) {
-      data.push({ name: humanReadableTimes[i], price: prices[i] })
+    for (var i = 0; i < prices.values.length; i++) {
+      data.push({ name: humanReadableTimes[i], price: prices.values[i] })
     }
+
     return data;
   }
 

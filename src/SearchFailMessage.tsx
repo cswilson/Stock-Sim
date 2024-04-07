@@ -1,11 +1,11 @@
 interface SearchFailProps {
-  ticker: string
+  tickerSymbol: string
 }
 
-export const SearchFailMessage: React.FC<SearchFailProps> = ({ticker}) => {
+export const SearchFailMessage: React.FC<SearchFailProps> = ({tickerSymbol}) => {
 
     return (
-        <p className="md:text-4xl text-lg fail">Failed to find data for ticker: {ticker}</p>
+        <p className="md:text-4xl text-lg fail">Failed to find data for ticker symbol: {tickerSymbol}</p>
     )
 
 }

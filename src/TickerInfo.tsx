@@ -1,18 +1,16 @@
+import { useContext } from "react"
 import { AdvancedAnalytics } from "./AdvancedAnalytics"
 import { LineChartComp } from "./LineChartComp"
+import { TickerContext } from "./App"
 
-interface TickerInfoProps {
-  tickerName: string
-  prices: number[]
-  times: number[]
-}
+export const TickerInfo: React.FC = () => {
 
-export const TickerInfo: React.FC<TickerInfoProps> = ({ tickerName, prices, times }) => {
+    const tickerdata = useContext(TickerContext);
 
     return (
         <div className="App-common">
-          <p className="text-2xl">{tickerName} Price History (USD)</p>
-          <LineChartComp prices={prices} times={times} />
+          <p className="text-2xl">{tickerdata.ticker} Price History (USD)</p>
+          <LineChartComp prices={tickerdata.prices}/>
           <AdvancedAnalytics></AdvancedAnalytics>
         </div>
     )

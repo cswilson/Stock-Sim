@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { DatePicker, dateToHumanReadableString} from "./DatePicker"
-import { useTickerContext } from "./App";
+import { TickerContext } from "./App";
 import { DollarAmountInput } from "./DollarAmountInput";
 import { buildInvestmentSummary } from "./InvestmentSummary";
 import { StringListDisplay } from "./StringListDisplay";
 
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
-    const { ticker, prices, dividends } = useTickerContext();
+    const { ticker, prices, dividends } = useContext(TickerContext);
     const [date, setDate] = useState<Date>(new Date());
     const [outputColor, setOutputColor] = useState<string>("");
     const [summaryText, setSummaryText] = useState<string[]>([]);
