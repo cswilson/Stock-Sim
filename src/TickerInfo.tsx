@@ -9,7 +9,7 @@ export const TickerInfo: React.FC = () => {
 
     return (
         <div className="App-common">
-          <p className="text-2xl">{tickerdata.ticker} Price History (USD)</p>
+          <p className="text-2xl">{tickerdata.symbol} Price History (USD)</p>
           <LineChartComp prices={tickerdata.prices}/>
           <AdvancedAnalytics></AdvancedAnalytics>
         </div>

@@ -2,12 +2,13 @@ import { useContext, useState } from "react";
 import { DatePicker, dateToHumanReadableString} from "./DatePicker"
 import { TickerContext } from "./App";
 import { DollarAmountInput } from "./DollarAmountInput";
-import { buildInvestmentSummary } from "./InvestmentSummary";
 import { StringListDisplay } from "./StringListDisplay";
+import { InvestmentSummary } from "./InvestmentSummary";
+import { TickerData } from "./TickerData";
 
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
-    const { ticker, prices, dividends } = useContext(TickerContext);
+    const { symbol, prices, dividends } = useContext(TickerContext);
     const [date, setDate] = useState<Date>(new Date());
     const [outputColor, setOutputColor] = useState<string>("");
     const [summaryText, setSummaryText] = useState<string[]>([]);
@@ -20,18 +21,19 @@ export const LumpSum: React.FC = () => {
             setOutputColor("fail");
             setSummaryText(["No price data at provided date"]);
         } else {
-            const index = prices.getClosestTimeIndex(time);
+            const index = prices.getMatchingTimeIndex(time);
             const costPerShare = prices.values[index];
             const sharesBought = lumpSumAmount / costPerShare;
             const finalPrice = prices.values[prices.values.length - 1];
             const finalPortfolioValue = sharesBought * finalPrice;
 
-            const summary = buildInvestmentSummary(lumpSumAmount, finalPortfolioValue);
+            //TODO change dividends
+            const summary = new InvestmentSummary(lumpSumAmount, finalPortfolioValue, 0).toDisplay();
 
             setOutputColor(summary.outputColor);
             //TODO include dividend payments in the summary
             setSummaryText([
-                `If you invested $${summary.amountInvested} into ${ticker} in ${dateToHumanReadableString(date)} you would now have $${summary.finalValue}.`,
+                `If you invested $${summary.amountInvested} into ${symbol} in ${dateToHumanReadableString(date)} you would now have $${summary.finalValue}.`,
                 `Net Profit: $${summary.netGain}`,
                 `Percentage Gain: ${summary.percentGain}%`
             ])

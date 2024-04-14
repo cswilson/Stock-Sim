@@ -3,14 +3,14 @@ import { DollarAmountInput } from "./DollarAmountInput";
 import { DatePicker} from "./DatePicker";
 import { addMonths, addYears } from "date-fns";
 import PositiveNumberInput from "./PositiveNumberInput";
-import { buildInvestmentSummary } from "./InvestmentSummary";
 import { StringListDisplay } from "./StringListDisplay";
 import { DateUnit, DateUnitSelect } from "./DateUnit";
 import { TickerContext } from "./App";
+import { InvestmentSummary, InvestmentSummaryDisplay } from "./InvestmentSummary";
 
 export const DCA: React.FC = () => {
 
-    const { ticker, prices, dividends } = useContext(TickerContext);
+    const { symbol, prices, dividends } = useContext(TickerContext);
     const [dcaAmount, setDcaAmount] = useState<number>(0);
     const [initialDate, setInitialDate] = useState<Date>(new Date());
     const [increment, setIncrement] = useState<number>(1);
@@ -26,6 +26,7 @@ export const DCA: React.FC = () => {
             return;
         }
 
+        //TODO don't do these calculations here, just use functions from TickerData
         if (prices.isTimeOutsideRange(timestamp)) {
             setOutputColor("fail");
             //TODO print warning message
@@ -36,7 +37,7 @@ export const DCA: React.FC = () => {
             let currentTimestamp = timestamp;
             let totalAmountInvested = 0;
             while (!prices.isTimeOutsideRange(currentTimestamp)) {
-                const sharePrice = prices.values[prices.getClosestTimeIndex(currentTimestamp)];
+                const sharePrice = prices.values[prices.getMatchingTimeIndex(currentTimestamp)];
                 totalAmountInvested += dcaAmount;
                 totalSharesOwned += (dcaAmount / sharePrice);
 
@@ -49,7 +50,7 @@ export const DCA: React.FC = () => {
 
             const finalPortfolioValue = totalSharesOwned * prices.values[prices.values.length - 1];
 
-            const summary = buildInvestmentSummary(totalAmountInvested, finalPortfolioValue);
+            const summary = new InvestmentSummary(totalAmountInvested, finalPortfolioValue, 0).toDisplay();
 
             let incrementUnitDisplay = incrementUnit.toString().toLocaleLowerCase();
             if (increment == 1) {

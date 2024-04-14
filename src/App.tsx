@@ -14,10 +14,12 @@ function App() {
   const [tickerSearched, setTickerSearched] = useState<boolean>(false);
   const [foundTicker, setFoundTicker] = useState<boolean>(false);
 
+  //TODO IMPORTANT, figure out why ticker search fails with the string "TEST"
   const onTickerSearch = async (tickerSymbol: string) => {
     const tickerData = await TickerData.retrieveTickerInfo(tickerSymbol);
     if (tickerData instanceof Error) {
       console.error("Error retrieving ticker data: "  + tickerData.message);
+      setTickerData(new TickerData(tickerSymbol));
       setFoundTicker(false);
     } else if (tickerData instanceof TickerData) {
       setTickerData(tickerData);
@@ -43,9 +45,8 @@ function App() {
           <p className='text-5xl my-4 text-neutral-400'>Stock Sim</p>
           <TickerInput onTickerSearch={onTickerSearch} />
           {successFullyFoundTicker() && <TickerInfo/>}
-          {searchedForTickerAndFailed() && <SearchFailMessage tickerSymbol={tickerData.ticker} />}
+          {searchedForTickerAndFailed() && <SearchFailMessage tickerSymbol={tickerData.symbol} />}
         </header>
-        <footer className="App-common App-footer"><p>&copy; 2024 Cliff Wilson. All rights reserved.</p></footer>
       </TickerContext.Provider>
     </div>
   );

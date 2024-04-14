@@ -23,12 +23,7 @@
 }
 
 .App-body {
-  min-height: 95vh;
-}
-
-.App-footer {
-  min-height: 5vh;
-  font-size: calc(6 + 2vmin);
+  min-height: 100vh;
 }
 
 .App-link {

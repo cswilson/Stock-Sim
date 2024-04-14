@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import PositiveNumberInput from "./PositiveNumberInput";
 import { DateUnit, DateUnitSelect } from "./DateUnit";
+import { TickerContext } from "./App";
 
 export const BestWorstIntervals: React.FC = () => {
 
+    const { symbol, prices, dividends } = useContext(TickerContext);
     const [intervalLength, setIntervalLength] = useState<number>(1);
     const [intervalUnit, setIntervalUnit] = useState<DateUnit>(DateUnit.Months);
 
