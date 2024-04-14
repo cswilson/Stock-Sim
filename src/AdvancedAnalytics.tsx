@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import './App.css';
 import { LumpSum } from "./LumpSum";
 import { DCA } from "./DCA";
 import { BestWorstIntervals } from "./BestWorstIntervals";

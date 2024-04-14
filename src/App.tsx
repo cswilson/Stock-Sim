@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import './App.css';
 
 import { TickerInput } from './TickerInput';
 import { TickerData } from './TickerData';
