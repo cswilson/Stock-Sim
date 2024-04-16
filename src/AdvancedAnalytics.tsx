@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { LumpSum } from "./LumpSum";
 import { DCA } from "./DCA";
-import { BestWorstIntervals } from "./BestWorstIntervals";
+import { BestAndWorstIntervals } from "./BestAndWorstIntervals";
 
 export const AdvancedAnalytics: React.FC = () => {
 
@@ -30,7 +30,7 @@ export const AdvancedAnalytics: React.FC = () => {
             </div>
             {currentMode == Mode.LumpSum && <LumpSum/>}
             {currentMode == Mode.DCA && <DCA/>}
-            {currentMode == Mode.BestWorst && <BestWorstIntervals/>}
+            {currentMode == Mode.BestWorst && <BestAndWorstIntervals/>}
         </div>
     );
 };

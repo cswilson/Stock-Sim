@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const dateToHumanReadableString = (date: Date) => {
+export const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
     return date.toLocaleString(undefined, options);
 }

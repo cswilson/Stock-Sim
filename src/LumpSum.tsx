@@ -1,44 +1,37 @@
 import { useContext, useState } from "react";
-import { DatePicker, dateToHumanReadableString} from "./DatePicker"
+import { DatePicker, formatDate } from "./DatePicker"
 import { TickerContext } from "./App";
 import { DollarAmountInput } from "./DollarAmountInput";
 import { StringListDisplay } from "./StringListDisplay";
-import { InvestmentSummary } from "./InvestmentSummary";
 import { TickerData } from "./TickerData";
 
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
-    const { symbol, prices, dividends } = useContext(TickerContext);
-    const [date, setDate] = useState<Date>(new Date());
+    const tickerData = useContext<TickerData>(TickerContext);
+    const [lumpSumDate, setLumpSumDate] = useState<Date>(new Date());
     const [outputColor, setOutputColor] = useState<string>("");
     const [summaryText, setSummaryText] = useState<string[]>([]);
 
-    //TODO figure out why calculations are slightly off?
-    //TODO factor dividends into calculation
     const calculateLumpSum = () => {
-        const time = date.getTime();
-        if (prices.isTimeOutsideRange(time)) {
-            setOutputColor("fail");
-            setSummaryText(["No price data at provided date"]);
-        } else {
-            const index = prices.getMatchingTimeIndex(time);
-            const costPerShare = prices.values[index];
-            const sharesBought = lumpSumAmount / costPerShare;
-            const finalPrice = prices.values[prices.values.length - 1];
-            const finalPortfolioValue = sharesBought * finalPrice;
+        const now = new Date().getTime();
+        const lumpSumTime = lumpSumDate.getTime();
 
-            //TODO change dividends
-            const summary = new InvestmentSummary(lumpSumAmount, finalPortfolioValue, 0).toDisplay();
+        const result = tickerData.simulateInvestmentOverTime(lumpSumAmount, lumpSumTime, now);
+
+        if (result === undefined) {
+            setOutputColor("fail");
+            setSummaryText(["No price data available for the provided date"]);
+        } else {
+            const summary = result.toDisplay();
+            const dateReadable = formatDate(lumpSumDate);
+            const summaryText = [
+                `If you invested $${summary.amountInvested} into ${tickerData.symbol} in ${dateReadable}, you would now have $${summary.finalValue}.`
+            ].concat(summary.buildOutputStringArray());
 
             setOutputColor(summary.outputColor);
-            //TODO include dividend payments in the summary
-            setSummaryText([
-                `If you invested $${summary.amountInvested} into ${symbol} in ${dateToHumanReadableString(date)} you would now have $${summary.finalValue}.`,
-                `Net Profit: $${summary.netGain}`,
-                `Percentage Gain: ${summary.percentGain}%`
-            ])
+            setSummaryText(summaryText);
         }
-    }
+    };
 
     return (
         <div className="mt-4">
@@ -48,7 +41,7 @@ export const LumpSum: React.FC = () => {
             </div>
             <div className="flex flex-row justify-center items-center mt-4 gap-4">
                 <p className="text-2xl ">Investment Date: </p>
-                <DatePicker onDateChange={setDate}></DatePicker>
+                <DatePicker onDateChange={setLumpSumDate}></DatePicker>
             </div>
             <button className="btn mt-4" onClick={calculateLumpSum}>Calculate</button>
             <div className={`mt-4 text-2xl ${outputColor}`}>

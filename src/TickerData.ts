@@ -48,18 +48,27 @@ export class TimeSeriesData {
         }
     }
 
+    public getStartAndEndTimes(): [number, number] | undefined {
+        if (this.times.length == 0) {
+            return undefined;
+        }
+        return [this.times[0], this.times[this.times.length - 1]];
+    }
+
     public isTimeOutsideRange(targetTimestamp: number): boolean {
-        const tooLow = targetTimestamp < this.times[0];
-        const tooHigh = targetTimestamp > this.times[this.times.length - 1];
-        return tooLow || tooHigh;
+        const startEnd = this.getStartAndEndTimes();
+        if (startEnd === undefined){
+            return true;
+        }
+        return targetTimestamp < startEnd[0] || targetTimestamp > startEnd[1];
     }
 
 }
 
 export class TickerData {
-    symbol: string
-    prices: TimeSeriesData
-    dividends: TimeSeriesData
+    public readonly symbol: string
+    public readonly prices: TimeSeriesData
+    public readonly dividends: TimeSeriesData
 
     constructor(ticker?: string, prices?: TimeSeriesData, dividends?: TimeSeriesData) {
         this.symbol = ticker || "";
@@ -67,7 +76,11 @@ export class TickerData {
         this.dividends = dividends || new TimeSeriesData([], [], false);
     }
 
-    simulateInvestmentOverPeriod(investmentAmount: number, startTimestamp: number, endTimestamp: number): InvestmentSummary {
+    public simulateInvestmentOverTime(investmentAmount: number, startTimestamp: number, endTimestamp: number): InvestmentSummary | undefined {
+        if (this.prices.isTimeOutsideRange(startTimestamp)){
+            return undefined;
+        }
+
         const startIndex = this.prices.getMatchingTimeIndex(startTimestamp);
         const initialSharePrice = this.prices.values[startIndex];
         const sharesOwned = investmentAmount / initialSharePrice;
@@ -76,12 +89,11 @@ export class TickerData {
         const endingPrice = this.prices.values[endIndex];
 
         const startDividendIndex = this.dividends.getMatchingTimeIndex(startTimestamp, SnappingOption.FORWARD);
-        const endDividendIndex = this.dividends.getMatchingTimeIndex(startTimestamp, SnappingOption.BACKWARD);
+        const endDividendIndex = this.dividends.getMatchingTimeIndex(endTimestamp, SnappingOption.BACKWARD);
 
         let totalDividendsPaid = 0;
         for (let i = startDividendIndex; i < endDividendIndex; i++) {
-            //TODO this is assuming the dividend values from yahoo represent payment per share, need to confirm this is correct
-            totalDividendsPaid += (this.dividends.values[i] * sharesOwned);
+            totalDividendsPaid += (this.dividends.values[i] * sharesOwned); 
             i++;
         }
 
