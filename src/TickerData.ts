@@ -11,13 +11,9 @@ export class TimeSeriesData {
     public readonly values: number[];
     public readonly times: number[];
 
-    constructor(values: number[], times: number[], convertToMillis: boolean) {
+    constructor(values: number[], times: number[]) {
         this.values = values;
-        if (convertToMillis) {
-            this.times = times.map((t) => t * 1000);
-        } else {
-            this.times = times;
-        }
+        this.times = times;
     }
 
     public getClosestTimeIndex(targetTimestamp: number): number {
@@ -73,8 +69,8 @@ export class TickerData {
 
     constructor(ticker?: string, prices?: TimeSeriesData, dividends?: TimeSeriesData) {
         this.symbol = ticker || "";
-        this.prices = prices || new TimeSeriesData([], [], false);
-        this.dividends = dividends || new TimeSeriesData([], [], false);
+        this.prices = prices || new TimeSeriesData([], []);
+        this.dividends = dividends || new TimeSeriesData([], []);
     }
 
     public simulateInvestmentOverTime(investmentAmount: number, startTimestamp: number, endTimestamp: number): InvestmentSummary | undefined {
@@ -135,12 +131,12 @@ export class TickerData {
         prices = prices.map(p => parseFloat(p.toFixed(2)));
 
         const timesInSeconds: number[] = finalJson.chart.result[0].timestamp;
-        const priceData = new TimeSeriesData(prices, timesInSeconds, true);
+        const priceData = new TimeSeriesData(prices, timesInSeconds.map(t => t * 1000));
 
         var dividendEvents = Object.values(finalJson.chart.result[0].events.dividends);
         const dividendPrices = dividendEvents.map((e: any) => e.amount);
         const dividendDates = dividendEvents.map((e: any) => e.date);
-        const dividendData = new TimeSeriesData(dividendPrices, dividendDates, true);
+        const dividendData = new TimeSeriesData(dividendPrices, dividendDates.map(t => t * 1000));
 
         return new TickerData(tickerSymbol, priceData, dividendData);
     }

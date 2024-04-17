@@ -12,7 +12,7 @@ class IntervalResult {
     public readonly endDate: Date;
     public readonly investmentSummary: InvestmentSummary;
 
-    constructor(startDate: Date, endDate: Date, investmentSummary: InvestmentSummary){
+    constructor(startDate: Date, endDate: Date, investmentSummary: InvestmentSummary) {
         this.startDate = startDate;
         this.endDate = endDate;
         this.investmentSummary = investmentSummary;
@@ -21,7 +21,6 @@ class IntervalResult {
     public toString(): string {
         return `${this.investmentSummary.percentGain.toFixed(2)}%. ${formatDate(this.startDate)} - ${formatDate(this.endDate)}`
     }
-
 }
 
 export const BestAndWorstIntervals: React.FC = () => {
@@ -29,65 +28,47 @@ export const BestAndWorstIntervals: React.FC = () => {
     const tickerData = useContext(TickerContext);
     const [intervalLength, setIntervalLength] = useState<number>(1);
     const [intervalUnit, setIntervalUnit] = useState<DateUnit>(DateUnit.Months);
-    const [stringListDisplayProps, setStringListDisplayProps] = useState<StringListDisplayProps>({strings: []});
+    const [stringListDisplayProps, setStringListDisplayProps] = useState<StringListDisplayProps>({ strings: [] });
 
     const calculateBestAndWorstIntervals = () => {
-
         const dateRange = tickerData.prices.getDateRange();
         if (dateRange === undefined) {
             //TODO print error message here?
             return
         }
 
-        let monthsInInterval;
-        if (intervalUnit == DateUnit.Months) {
-            monthsInInterval = intervalLength;
-        } else {
-            monthsInInterval = intervalLength * 12;
-        }
+        const monthsInInterval = intervalUnit === DateUnit.Months ? intervalLength : intervalLength * 12;
 
         const allIntervalResults: IntervalResult[] = [];
         let currentStart = dateRange.start;
-        while (isBefore(currentStart, addMonths(dateRange.end, -monthsInInterval))) {
 
+        while (isBefore(currentStart, addMonths(dateRange.end, -monthsInInterval))) {
             let end = addMonths(currentStart, monthsInInterval)
             const summary = tickerData.simulateInvestmentOverTime(100, currentStart.getTime(), end.getTime());
-            if (summary !== undefined) {
-                allIntervalResults.push(
-                    new IntervalResult(currentStart, end, summary)
-                )
+            if (summary) {
+                allIntervalResults.push(new IntervalResult(currentStart, end, summary))
             }
-
             currentStart = addMonths(currentStart, 1);
         }
 
         allIntervalResults.sort((a, b) => a.investmentSummary.percentGain - b.investmentSummary.percentGain);
 
-        const totalValues = allIntervalResults.length;
-        const worst = allIntervalResults[0];
-        const percentile25 = allIntervalResults[Math.round(totalValues * 0.25) - 1];
-        const percentile50 = allIntervalResults[Math.round(totalValues * 0.50) - 1];
-        const percentile75 = allIntervalResults[Math.round(totalValues * 0.75) - 1];
-        const best = allIntervalResults[totalValues - 1];
+        const totalIntervalResults = allIntervalResults.length;
+        const percentilesToDisplay: [string, number][] = [["Worst Return", 0], ["25th Percentile", 25], ["50th Percentile", 50], ["75th Percentile", 75], ["Best Return", 100]];
+
+        const percentileOutput: [string, string][] = percentilesToDisplay.map((percentile) => {
+            const index = Math.round((percentile[1] / 100) * (totalIntervalResults - 1));
+            const resultAtIndex = allIntervalResults[index];
+            return [`${percentile[0]}: ${resultAtIndex.toString()}`, resultAtIndex.investmentSummary.toDisplay().outputColor];
+        });
 
         setStringListDisplayProps(
             {
-                strings: [
-                    "Worst Return: "  + worst.toString(),
-                    "25th Percentile: " + percentile25.toString(),
-                    "50th Percentile: " + percentile50.toString(),
-                    "75th Percentile: " + percentile75.toString(),
-                    "Best Return: " + best.toString(),
-                ],
-                perStringStyling: [
-                    worst.investmentSummary.toDisplay().outputColor,
-                    percentile25.investmentSummary.toDisplay().outputColor,
-                    percentile50.investmentSummary.toDisplay().outputColor,
-                    percentile75.investmentSummary.toDisplay().outputColor,
-                    best.investmentSummary.toDisplay().outputColor,
-                ],
+                strings: percentileOutput.map(([formattedText, _]) => formattedText),
+                perStringStyling: percentileOutput.map(([_, outputColor]) => outputColor),
             }
         );
+
     }
 
     return (

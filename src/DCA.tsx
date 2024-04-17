@@ -8,6 +8,7 @@ import { DateUnit, DateUnitSelect } from "./DateUnit";
 import { TickerContext } from "./App";
 import { InvestmentSummary, InvestmentSummaryDisplay } from "./InvestmentSummary";
 
+//TODO make the simulation end date configurable
 export const DCA: React.FC = () => {
 
     const { symbol, prices, dividends } = useContext(TickerContext);

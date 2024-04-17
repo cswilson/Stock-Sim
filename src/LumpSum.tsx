@@ -5,6 +5,7 @@ import { DollarAmountInput } from "./DollarAmountInput";
 import { StringListDisplay } from "./StringListDisplay";
 import { TickerData } from "./TickerData";
 
+//TODO make the simulation end date configurable
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
     const tickerData = useContext<TickerData>(TickerContext);
