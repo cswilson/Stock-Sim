@@ -1,3 +1,4 @@
+import { DateRange } from "./DateRange";
 import { InvestmentSummary } from "./InvestmentSummary";
 
 enum SnappingOption {
@@ -48,19 +49,19 @@ export class TimeSeriesData {
         }
     }
 
-    public getStartAndEndTimes(): [number, number] | undefined {
+    public getDateRange(): DateRange | undefined {
         if (this.times.length == 0) {
             return undefined;
         }
-        return [this.times[0], this.times[this.times.length - 1]];
+        return {start: new Date(this.times[0]), end: new Date(this.times[this.times.length - 1])};
     }
 
     public isTimeOutsideRange(targetTimestamp: number): boolean {
-        const startEnd = this.getStartAndEndTimes();
-        if (startEnd === undefined){
+        const dateRange = this.getDateRange();
+        if (dateRange === undefined){
             return true;
         }
-        return targetTimestamp < startEnd[0] || targetTimestamp > startEnd[1];
+        return targetTimestamp < dateRange.start.getTime() || targetTimestamp > dateRange.end.getTime();
     }
 
 }
@@ -115,9 +116,10 @@ export class TickerData {
 
         const json = await response.json();
         const firstTradeDate = json.chart.result[0].meta.firstTradeDate;
-        //TODO VERY IMPORTANT, FIX THIS HACK REQUIRED CAUSE YAHOO RETURNS NULLS
-        // const now = Date.now();
-        const now = 1611944000;
+        //TODO VERY IMPORTANT: on rare occasions yahoo will return a price array with nulls at the end (seemed to happen on April 1st, but I can't replicate it)
+        //need to add something to work around that
+        const now = Date.now();
+        // const now = 1611944000;
 
         const fullQuery = baseRequestForTicker + `?period1=${firstTradeDate}&period2=${now}&interval=1mo`;
 

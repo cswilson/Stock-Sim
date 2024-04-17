@@ -3,22 +3,23 @@ import PositiveNumberInput from "./PositiveNumberInput";
 import { DateUnit, DateUnitSelect } from "./DateUnit";
 import { TickerContext } from "./App";
 import { addMonths, isBefore } from "date-fns";
-import { StringListDisplay } from "./StringListDisplay";
+import { StringListDisplay, StringListDisplayProps } from "./StringListDisplay";
 import { formatDate } from "./DatePicker";
+import { InvestmentSummary } from "./InvestmentSummary";
 
 class IntervalResult {
     public readonly startDate: Date;
     public readonly endDate: Date;
-    public readonly percentGain: number;
+    public readonly investmentSummary: InvestmentSummary;
 
-    constructor(startDate: Date, endDate: Date, percentGain: number){
+    constructor(startDate: Date, endDate: Date, investmentSummary: InvestmentSummary){
         this.startDate = startDate;
         this.endDate = endDate;
-        this.percentGain = percentGain;
+        this.investmentSummary = investmentSummary;
     }
 
     public toString(): string {
-        return `${this.percentGain.toFixed(2)}%. ${formatDate(this.startDate)} - ${formatDate(this.endDate)}`
+        return `${this.investmentSummary.percentGain.toFixed(2)}%. ${formatDate(this.startDate)} - ${formatDate(this.endDate)}`
     }
 
 }
@@ -28,18 +29,15 @@ export const BestAndWorstIntervals: React.FC = () => {
     const tickerData = useContext(TickerContext);
     const [intervalLength, setIntervalLength] = useState<number>(1);
     const [intervalUnit, setIntervalUnit] = useState<DateUnit>(DateUnit.Months);
-    const [summaryText, setSummaryText] = useState<string[]>([]);
+    const [stringListDisplayProps, setStringListDisplayProps] = useState<StringListDisplayProps>({strings: []});
 
     const calculateBestAndWorstIntervals = () => {
 
-        const startAndEnd = tickerData.prices.getStartAndEndTimes();
-        if (startAndEnd === undefined) {
+        const dateRange = tickerData.prices.getDateRange();
+        if (dateRange === undefined) {
             //TODO print error message here?
             return
         }
-
-        const start = new Date(startAndEnd[0]);
-        const end = new Date(startAndEnd[1]);
 
         let monthsInInterval;
         if (intervalUnit == DateUnit.Months) {
@@ -49,21 +47,21 @@ export const BestAndWorstIntervals: React.FC = () => {
         }
 
         const allIntervalResults: IntervalResult[] = [];
-        let currentStart = start;
-        while (isBefore(currentStart, end)) {
+        let currentStart = dateRange.start;
+        while (isBefore(currentStart, addMonths(dateRange.end, -monthsInInterval))) {
 
             let end = addMonths(currentStart, monthsInInterval)
             const summary = tickerData.simulateInvestmentOverTime(100, currentStart.getTime(), end.getTime());
             if (summary !== undefined) {
                 allIntervalResults.push(
-                    new IntervalResult(currentStart, end, summary.percentGain)
+                    new IntervalResult(currentStart, end, summary)
                 )
             }
 
             currentStart = addMonths(currentStart, 1);
         }
 
-        allIntervalResults.sort((a, b) => a.percentGain - b.percentGain);
+        allIntervalResults.sort((a, b) => a.investmentSummary.percentGain - b.investmentSummary.percentGain);
 
         const totalValues = allIntervalResults.length;
         const worst = allIntervalResults[0];
@@ -72,15 +70,24 @@ export const BestAndWorstIntervals: React.FC = () => {
         const percentile75 = allIntervalResults[Math.round(totalValues * 0.75) - 1];
         const best = allIntervalResults[totalValues - 1];
 
-        // TODO add coloring to output?
-        setSummaryText([
-            "Worst Return: "  + worst.toString(),
-            "25th Percentile: " + percentile25.toString(),
-            "50th Percentile: " + percentile50.toString(),
-            "75th Percentile: " + percentile75.toString(),
-            "Best Return: " + best.toString(),
-        ])
-
+        setStringListDisplayProps(
+            {
+                strings: [
+                    "Worst Return: "  + worst.toString(),
+                    "25th Percentile: " + percentile25.toString(),
+                    "50th Percentile: " + percentile50.toString(),
+                    "75th Percentile: " + percentile75.toString(),
+                    "Best Return: " + best.toString(),
+                ],
+                perStringStyling: [
+                    worst.investmentSummary.toDisplay().outputColor,
+                    percentile25.investmentSummary.toDisplay().outputColor,
+                    percentile50.investmentSummary.toDisplay().outputColor,
+                    percentile75.investmentSummary.toDisplay().outputColor,
+                    best.investmentSummary.toDisplay().outputColor,
+                ],
+            }
+        );
     }
 
     return (
@@ -91,8 +98,8 @@ export const BestAndWorstIntervals: React.FC = () => {
                 <DateUnitSelect onUpdate={setIntervalUnit} />
             </div>
             <button className="btn mt-4" onClick={calculateBestAndWorstIntervals}>Calculate</button>
-            <div className={`mt-4 text-2xl`}>
-                <StringListDisplay strings={summaryText}></StringListDisplay>
+            <div className={`text-2xl`}>
+                <StringListDisplay {...stringListDisplayProps}></StringListDisplay>
             </div>
         </div>
     )

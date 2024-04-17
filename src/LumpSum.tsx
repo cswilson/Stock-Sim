@@ -44,7 +44,7 @@ export const LumpSum: React.FC = () => {
                 <DatePicker onDateChange={setLumpSumDate}></DatePicker>
             </div>
             <button className="btn mt-4" onClick={calculateLumpSum}>Calculate</button>
-            <div className={`mt-4 text-2xl ${outputColor}`}>
+            <div className={`text-2xl ${outputColor}`}>
                 <StringListDisplay strings={summaryText}></StringListDisplay>
             </div>
         </div>

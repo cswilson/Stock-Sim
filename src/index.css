@@ -25,7 +25,7 @@ code {
 }
 
 .success {
-  @apply text-green-600
+  @apply text-green-700
 }
 
 .fail { 

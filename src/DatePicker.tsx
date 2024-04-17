@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export const formatDate = (date: Date) => {
-    const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+    const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
     return date.toLocaleString(undefined, options);
 }
 
@@ -21,7 +21,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
         onDateChange(updatedDate);
     }
 
-    //TODO change years based on date range
+    //TODO change years based on range of the data
     const [years] = useState(() => {
         const currentYear = new Date().getFullYear();
         const yearsArray = [];

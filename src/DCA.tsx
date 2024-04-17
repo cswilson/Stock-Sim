@@ -87,7 +87,7 @@ export const DCA: React.FC = () => {
                 <DateUnitSelect onUpdate={setIncrementUnit}/>
             </div>
             <button className="btn mt-4" onClick={calculateDCA}>Calculate</button>
-            <div className={`mt-4 text-2xl ${outputColor}`}>
+            <div className={`text-2xl ${outputColor}`}>
                 <StringListDisplay strings={summaryText}></StringListDisplay>
             </div>
         </div>
