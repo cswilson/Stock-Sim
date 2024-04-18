@@ -1,5 +1,5 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { TimeSeriesData } from "./TickerData"
+import { TimeSeriesData } from "./TimeSeriesData"
 
 interface LineChartProps {
   prices: TimeSeriesData

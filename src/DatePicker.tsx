@@ -10,6 +10,7 @@ interface DatePickerProps {
 }
 
 export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
+    //TODO don't default the date to now
     const [date, setDate] = useState<Date>(new Date());
 
     const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {

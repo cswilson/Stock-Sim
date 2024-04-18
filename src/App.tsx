@@ -1,26 +1,26 @@
 import React, { useContext, useState } from 'react';
 
 import { TickerInput } from './TickerInput';
-import { TickerData } from './TickerData';
+import { StockData } from './TickerData';
 import { TickerInfo } from './TickerInfo';
 import { SearchFailMessage } from './SearchFailMessage';
 
-export const TickerContext = React.createContext<TickerData>(new TickerData());
+export const TickerContext = React.createContext<StockData>(new StockData());
 
 function App() {
 
-  const [tickerData, setTickerData] = useState<TickerData>(new TickerData());
+  const [tickerData, setTickerData] = useState<StockData>(new StockData());
   const [tickerSearched, setTickerSearched] = useState<boolean>(false);
   const [foundTicker, setFoundTicker] = useState<boolean>(false);
 
   //TODO IMPORTANT, figure out why ticker search fails with the string "TEST"
   const onTickerSearch = async (tickerSymbol: string) => {
-    const tickerData = await TickerData.retrieveTickerInfo(tickerSymbol);
+    const tickerData = await StockData.retrieveTickerInfo(tickerSymbol);
     if (tickerData instanceof Error) {
       console.error("Error retrieving ticker data: "  + tickerData.message);
-      setTickerData(new TickerData(tickerSymbol));
+      setTickerData(new StockData(tickerSymbol));
       setFoundTicker(false);
-    } else if (tickerData instanceof TickerData) {
+    } else if (tickerData instanceof StockData) {
       setTickerData(tickerData);
       setFoundTicker(true);
     }

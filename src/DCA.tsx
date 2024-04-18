@@ -38,7 +38,7 @@ export const DCA: React.FC = () => {
             let currentTimestamp = timestamp;
             let totalAmountInvested = 0;
             while (!prices.isTimeOutsideRange(currentTimestamp)) {
-                const sharePrice = prices.values[prices.getMatchingTimeIndex(currentTimestamp)];
+                const sharePrice = prices.values[prices.getTimeIndex(currentTimestamp)];
                 totalAmountInvested += dcaAmount;
                 totalSharesOwned += (dcaAmount / sharePrice);
 

@@ -44,7 +44,7 @@ export const BestAndWorstIntervals: React.FC = () => {
 
         while (isBefore(currentStart, addMonths(dateRange.end, -monthsInInterval))) {
             let end = addMonths(currentStart, monthsInInterval)
-            const summary = tickerData.simulateInvestmentOverTime(100, currentStart.getTime(), end.getTime());
+            const summary = tickerData.simulateLumpSumOverTime(100, currentStart.getTime(), end.getTime());
             if (summary) {
                 allIntervalResults.push(new IntervalResult(currentStart, end, summary))
             }
@@ -54,7 +54,7 @@ export const BestAndWorstIntervals: React.FC = () => {
         allIntervalResults.sort((a, b) => a.investmentSummary.percentGain - b.investmentSummary.percentGain);
 
         const totalIntervalResults = allIntervalResults.length;
-        const percentilesToDisplay: [string, number][] = [["Worst Return", 0], ["25th Percentile", 25], ["50th Percentile", 50], ["75th Percentile", 75], ["Best Return", 100]];
+        const percentilesToDisplay: [string, number][] = [["Worst Return", 0], ["25th Percentile", 25], ["50th Percentile", 50], ["75th Percentile", 75], ["90th Percentile", 90], ["Best Return", 100]];
 
         const percentileOutput: [string, string][] = percentilesToDisplay.map((percentile) => {
             const index = Math.round((percentile[1] / 100) * (totalIntervalResults - 1));

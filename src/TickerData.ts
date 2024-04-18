@@ -1,68 +1,7 @@
-import { DateRange } from "./DateRange";
 import { InvestmentSummary } from "./InvestmentSummary";
+import { SnappingOption, TimeSeriesData } from "./TimeSeriesData";
 
-enum SnappingOption {
-    NONE,
-    FORWARD,
-    BACKWARD
-}
-
-export class TimeSeriesData {
-    public readonly values: number[];
-    public readonly times: number[];
-
-    constructor(values: number[], times: number[]) {
-        this.values = values;
-        this.times = times;
-    }
-
-    public getClosestTimeIndex(targetTimestamp: number): number {
-        let left = 0;
-        let right = this.times.length - 1;
-        let nearestIndex = 0;
-
-        while (left <= right) {
-            const mid = Math.floor((left + right) / 2);
-            if (Math.abs(this.times[mid] - targetTimestamp) < Math.abs(this.times[nearestIndex] - targetTimestamp)) {
-                nearestIndex = mid;
-            }
-            if (this.times[mid] < targetTimestamp) left = mid + 1;
-            else right = mid - 1;
-        }
-
-        return nearestIndex;
-    }
-
-    public getMatchingTimeIndex(targetTimestamp: number, snap: SnappingOption = SnappingOption.NONE): number {
-        const nearestIndex = this.getClosestTimeIndex(targetTimestamp);
-        const timeValue = this.times[nearestIndex];
-        if (snap == SnappingOption.FORWARD && timeValue < targetTimestamp) {
-            return nearestIndex + 1;
-        } else if (snap == SnappingOption.BACKWARD && timeValue > targetTimestamp) {
-            return nearestIndex - 1;
-        } else {
-            return nearestIndex;
-        }
-    }
-
-    public getDateRange(): DateRange | undefined {
-        if (this.times.length == 0) {
-            return undefined;
-        }
-        return {start: new Date(this.times[0]), end: new Date(this.times[this.times.length - 1])};
-    }
-
-    public isTimeOutsideRange(targetTimestamp: number): boolean {
-        const dateRange = this.getDateRange();
-        if (dateRange === undefined){
-            return true;
-        }
-        return targetTimestamp < dateRange.start.getTime() || targetTimestamp > dateRange.end.getTime();
-    }
-
-}
-
-export class TickerData {
+export class StockData {
     public readonly symbol: string
     public readonly prices: TimeSeriesData
     public readonly dividends: TimeSeriesData
@@ -73,20 +12,25 @@ export class TickerData {
         this.dividends = dividends || new TimeSeriesData([], []);
     }
 
-    public simulateInvestmentOverTime(investmentAmount: number, startTimestamp: number, endTimestamp: number): InvestmentSummary | undefined {
-        if (this.prices.isTimeOutsideRange(startTimestamp)){
+    public getBuyPrice(timestamp: number): number {
+        const index = this.prices.getTimeIndex(timestamp, SnappingOption.BACKWARD);
+        return this.prices.values[index];
+    }
+
+    public simulateLumpSumOverTime(investmentAmount: number, timeToLumpSum: number, endTimestamp: number): InvestmentSummary | undefined {
+        if (this.prices.isTimeOutsideRange(timeToLumpSum)){
             return undefined;
         }
 
-        const startIndex = this.prices.getMatchingTimeIndex(startTimestamp);
+        const startIndex = this.prices.getTimeIndex(timeToLumpSum);
         const initialSharePrice = this.prices.values[startIndex];
         const sharesOwned = investmentAmount / initialSharePrice;
 
-        const endIndex = this.prices.getMatchingTimeIndex(endTimestamp);
+        const endIndex = this.prices.getTimeIndex(endTimestamp);
         const endingPrice = this.prices.values[endIndex];
 
-        const startDividendIndex = this.dividends.getMatchingTimeIndex(startTimestamp, SnappingOption.FORWARD);
-        const endDividendIndex = this.dividends.getMatchingTimeIndex(endTimestamp, SnappingOption.BACKWARD);
+        const startDividendIndex = this.dividends.getTimeIndex(timeToLumpSum, SnappingOption.FORWARD);
+        const endDividendIndex = this.dividends.getTimeIndex(endTimestamp, SnappingOption.BACKWARD);
 
         let totalDividendsPaid = 0;
         for (let i = startDividendIndex; i < endDividendIndex; i++) {
@@ -98,7 +42,7 @@ export class TickerData {
         return new InvestmentSummary(investmentAmount, endPortfolioValue, totalDividendsPaid);
     }
 
-    static async retrieveTickerInfo(tickerSymbol: string): Promise<TickerData | Error> {
+    static async retrieveTickerInfo(tickerSymbol: string): Promise<StockData | Error> {
 
         //TODO set this constant somewhere in npm config? not sure where to set it 
         const TICKER_REQUEST_BASE: string = "http://localhost:4000/stock/";
@@ -133,11 +77,15 @@ export class TickerData {
         const timesInSeconds: number[] = finalJson.chart.result[0].timestamp;
         const priceData = new TimeSeriesData(prices, timesInSeconds.map(t => t * 1000));
 
-        var dividendEvents = Object.values(finalJson.chart.result[0].events.dividends);
-        const dividendPrices = dividendEvents.map((e: any) => e.amount);
-        const dividendDates = dividendEvents.map((e: any) => e.date);
-        const dividendData = new TimeSeriesData(dividendPrices, dividendDates.map(t => t * 1000));
+        const events = finalJson.chart.result[0].events;
+        let dividendData = undefined;
+        if (events){
+            var dividendEvents = Object.values(events.dividends);
+            const dividendPrices = dividendEvents.map((e: any) => e.amount);
+            const dividendDates = dividendEvents.map((e: any) => e.date);
+            dividendData = new TimeSeriesData(dividendPrices, dividendDates.map(t => t * 1000));
+        }
 
-        return new TickerData(tickerSymbol, priceData, dividendData);
+        return new StockData(tickerSymbol, priceData, dividendData);
     }
 }

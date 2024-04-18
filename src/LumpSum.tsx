@@ -3,12 +3,12 @@ import { DatePicker, formatDate } from "./DatePicker"
 import { TickerContext } from "./App";
 import { DollarAmountInput } from "./DollarAmountInput";
 import { StringListDisplay } from "./StringListDisplay";
-import { TickerData } from "./TickerData";
+import { StockData } from "./TickerData";
 
 //TODO make the simulation end date configurable
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
-    const tickerData = useContext<TickerData>(TickerContext);
+    const tickerData = useContext<StockData>(TickerContext);
     const [lumpSumDate, setLumpSumDate] = useState<Date>(new Date());
     const [outputColor, setOutputColor] = useState<string>("");
     const [summaryText, setSummaryText] = useState<string[]>([]);
@@ -17,7 +17,7 @@ export const LumpSum: React.FC = () => {
         const now = new Date().getTime();
         const lumpSumTime = lumpSumDate.getTime();
 
-        const result = tickerData.simulateInvestmentOverTime(lumpSumAmount, lumpSumTime, now);
+        const result = tickerData.simulateLumpSumOverTime(lumpSumAmount, lumpSumTime, now);
 
         if (result === undefined) {
             setOutputColor("fail");
