@@ -25,7 +25,7 @@ export const LumpSum: React.FC = () => {
 
         if (result === undefined) {
             setOutputColor("fail");
-            setSummaryText(["No price data available for the provided date"]);
+            setSummaryText(["Invalid Date Provided"]);
         } else {
             const summary = result.toDisplay();
             const dateReadable = Utils.formatDate(lumpSumDate);

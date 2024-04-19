@@ -1,17 +1,20 @@
 import { useContext, useState } from "react"
 import { DollarAmountInput } from "./DollarAmountInput";
 import { DatePicker} from "./DatePicker";
-import { addMonths, addYears } from "date-fns";
+import { addMonths } from "date-fns";
 import PositiveNumberInput from "./PositiveNumberInput";
 import { StringListDisplay } from "./StringListDisplay";
 import { DateUnit, DateUnitSelect } from "./DateUnit";
 import { TickerContext } from "./App";
-import { InvestmentSummary, InvestmentSummaryDisplay } from "./InvestmentSummary";
+import { Utils } from "./Utils";
+import { TimeSeriesData } from "./TimeSeriesData";
+import { DateRange } from "./DateRange";
+import { StockData } from "./TickerData";
 
 //TODO make the simulation end date configurable
 export const DCA: React.FC = () => {
 
-    const { symbol, prices, dividends } = useContext(TickerContext);
+    const tickerData = useContext<StockData>(TickerContext);
     const [dcaAmount, setDcaAmount] = useState<number>(0);
     const [initialDate, setInitialDate] = useState<Date>(new Date());
     const [increment, setIncrement] = useState<number>(1);
@@ -19,56 +22,42 @@ export const DCA: React.FC = () => {
     const [outputColor, setOutputColor] = useState<string>("");
     const [summaryText, setSummaryText] = useState<string[]>([]);
 
-    //TODO include dividends in calculation
     const calculateDCA = () => {
-        const timestamp = initialDate.getTime();
+        if (tickerData.prices.isTimeOutsideRange(initialDate.getTime())){
+            setOutputColor("fail");
+            setSummaryText(["Invalid Date Provided"]);
+            return;
+        }
 
         if (increment == 0) {
             return;
         }
 
-        //TODO don't do these calculations here, just use functions from TickerData
-        // if (prices.isTimeOutsideRange(timestamp)) {
-        //     setOutputColor("fail");
-        //     //TODO print warning message
+        const incrementMonths = (incrementUnit == DateUnit.Years) ? increment * 12 : increment;
 
-        // } else {
+        let investmentDate = initialDate;
+        const investmentEvents = new TimeSeriesData();
+        while (!tickerData.prices.isTimeOutsideRange(investmentDate.getTime())){
+            investmentEvents.addValueAtTime(dcaAmount, investmentDate.getTime());
+            investmentDate = addMonths(investmentDate, incrementMonths);
+        }
 
-        //     let totalSharesOwned = 0;
-        //     let currentTimestamp = timestamp;
-        //     let totalAmountInvested = 0;
-        //     while (!prices.isTimeOutsideRange(currentTimestamp)) {
-        //         const sharePrice = prices.values[prices.indexAtTime(currentTimestamp)];
-        //         totalAmountInvested += dcaAmount;
-        //         totalSharesOwned += (dcaAmount / sharePrice);
+        console.log(investmentEvents);
 
-        //         if (incrementUnit == DateUnit.Months) {
-        //             currentTimestamp = addMonths(new Date(currentTimestamp), increment).getTime();
-        //         } else {
-        //             currentTimestamp = addYears(new Date(currentTimestamp), increment).getTime();
-        //         }
-        //     }
+        const dateRange = new DateRange(initialDate.getTime(), new Date().getTime());
+        const summary = Utils.simulateInvestment(tickerData, investmentEvents, dateRange).toDisplay();
 
-        //     const finalPortfolioValue = totalSharesOwned * prices.values[prices.values.length - 1];
+        let incrementUnitDisplay = incrementUnit.toString().toLocaleLowerCase();
+        if (increment == 1) {
+            incrementUnitDisplay = incrementUnitDisplay.slice(0, -1);
+        } else {
+            incrementUnitDisplay = increment.toString() + " " + incrementUnitDisplay; 
+        }
 
-        //     const summary = new InvestmentSummary(totalAmountInvested, finalPortfolioValue, 0).toDisplay();
-
-        //     let incrementUnitDisplay = incrementUnit.toString().toLocaleLowerCase();
-        //     if (increment == 1) {
-        //         incrementUnitDisplay = incrementUnitDisplay.slice(0, -1);
-        //     } else {
-        //         incrementUnitDisplay = increment.toString() + " " + incrementUnitDisplay; 
-        //     }
-
-        //     setOutputColor(summary.outputColor);
-        //     //TODO include dividend payments in the summary
-        //     setSummaryText([
-        //         `If you invested $${dcaAmount} every ${incrementUnitDisplay} you would have now have: $${summary.finalValue}.`,
-        //         `Total Amount Invested: $${summary.amountInvested}`,
-        //         `Net Profit: $${summary.netGain}`,
-        //         `Percentage Gain: ${summary.percentGain}%`,
-        //     ])
-        // }
+        setSummaryText([
+            `If you invested $${dcaAmount} every ${incrementUnitDisplay} starting in ${Utils.formatDate(initialDate)} you would have now have: $${summary.finalValue}.`,
+        ].concat(summary.buildOutputStringArray()))
+        setOutputColor(summary.outputColor);
 
     }
 
