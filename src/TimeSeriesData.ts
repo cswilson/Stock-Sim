@@ -6,45 +6,75 @@ export enum SnappingOption {
     BACKWARD
 }
 
+interface DataPoint {
+    value: number;
+    timestamp: number;
+}
+
 export class TimeSeriesData {
-    public readonly values: number[];
-    public readonly times: number[];
+    private readonly dataPoints: DataPoint[];
 
     constructor(values: number[] = [], times: number[] = []) {
-        this.values = values;
-        this.times = times;
+        if (values.length !== times.length) {
+            throw new Error("Time and value list must have the same length");
+        }
+
+        this.dataPoints = []
+        for (let i = 0; i < values.length; i++) {
+            this.dataPoints.push({ value: values[i], timestamp: times[i] });
+        }
+    }
+
+    public length(): number {
+        return this.dataPoints.length;
+    }
+
+    public get(index: number): DataPoint {
+        return this.dataPoints[index];
+    }
+
+    public valueAt(index: number): number {
+        return this.dataPoints[index].value;
+    }
+
+    public timeAt(index: number): number {
+        return this.dataPoints[index].timestamp;
+    }
+
+    //TODO remove?
+    public times(): number[] {
+        return this.dataPoints.map(dp => dp.timestamp);
+    }
+
+    public values(): number[] {
+        return this.dataPoints.map(dp => dp.value);
     }
 
     public addValueAtTime(value: number, time: number) {
+        const newDataPoint: DataPoint = { value, timestamp: time };
         let insertionIndex = 0;
-        while (insertionIndex < this.times.length && this.times[insertionIndex] < time) {
+        while (insertionIndex < this.length() && this.timeAt(insertionIndex) < time) {
             insertionIndex++;
         }
-        this.values.splice(insertionIndex, 0, value);
-        this.times.splice(insertionIndex, 0, time);
+        this.dataPoints.splice(insertionIndex, 0, newDataPoint);
     }
 
-    public getClosestTimeIndex(targetTimestamp: number): number {
+    //TODO this probably doesn't need to be used in most places due to getBuyPrice() in TickerData
+    public indexAtTime(targetTimestamp: number, snap: SnappingOption = SnappingOption.NONE): number {
         let left = 0;
-        let right = this.times.length - 1;
+        let right = this.length() - 1;
         let nearestIndex = 0;
 
         while (left <= right) {
             const mid = Math.floor((left + right) / 2);
-            if (Math.abs(this.times[mid] - targetTimestamp) < Math.abs(this.times[nearestIndex] - targetTimestamp)) {
+            if (Math.abs(this.timeAt(mid) - targetTimestamp) < Math.abs(this.timeAt(nearestIndex) - targetTimestamp)) {
                 nearestIndex = mid;
             }
-            if (this.times[mid] < targetTimestamp) left = mid + 1;
+            if (this.timeAt(mid) < targetTimestamp) left = mid + 1;
             else right = mid - 1;
         }
 
-        return nearestIndex;
-    }
-
-    //TODO this probably doesn't need to be used in most places due to getBuyPrice() in TickerData
-    public getTimeIndex(targetTimestamp: number, snap: SnappingOption = SnappingOption.NONE): number {
-        const nearestIndex = this.getClosestTimeIndex(targetTimestamp);
-        const timeValue = this.times[nearestIndex];
+        const timeValue = this.timeAt(nearestIndex);
         if (snap == SnappingOption.FORWARD && timeValue < targetTimestamp) {
             return nearestIndex + 1;
         } else if (snap == SnappingOption.BACKWARD && timeValue > targetTimestamp) {
@@ -55,23 +85,21 @@ export class TimeSeriesData {
     }
 
     public getDateRange(): DateRange | undefined {
-        if (this.times.length == 0) {
+        if (this.length() == 0) {
             return undefined;
         }
-        return {start: new Date(this.times[0]), end: new Date(this.times[this.times.length - 1])};
+        return { start: new Date(this.timeAt(0)), end: new Date(this.timeAt(this.length() - 1)) };
     }
 
-    public getValuesInRange(dateRange: DateRange): TimeSeriesData {
-        const startIndex = this.getTimeIndex(dateRange.start.getTime(), SnappingOption.FORWARD);
-        const endIndex = this.getTimeIndex(dateRange.end.getTime(), SnappingOption.BACKWARD);
-        const values = this.values.slice(startIndex, endIndex + 1)
-        const times = this.times.slice(startIndex, endIndex + 1)
-        return new TimeSeriesData(values, times);
+    public getDataInRange(dateRange: DateRange): DataPoint[] {
+        const startIndex = this.indexAtTime(dateRange.start.getTime(), SnappingOption.FORWARD);
+        const endIndex = this.indexAtTime(dateRange.end.getTime(), SnappingOption.BACKWARD);
+        return this.dataPoints.slice(startIndex, endIndex + 1);
     }
 
     public isTimeOutsideRange(targetTimestamp: number): boolean {
         const dateRange = this.getDateRange();
-        if (dateRange === undefined){
+        if (dateRange === undefined) {
             return true;
         }
         return targetTimestamp < dateRange.start.getTime() || targetTimestamp > dateRange.end.getTime();

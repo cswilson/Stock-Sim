@@ -1,9 +1,12 @@
 import { useContext, useState } from "react";
-import { DatePicker, formatDate } from "./DatePicker"
+import {Utils} from "./Utils";
+import { DatePicker } from "./DatePicker"
 import { TickerContext } from "./App";
 import { DollarAmountInput } from "./DollarAmountInput";
 import { StringListDisplay } from "./StringListDisplay";
 import { StockData } from "./TickerData";
+import { DateRange } from "./DateRange";
+import { TimeSeriesData } from "./TimeSeriesData";
 
 //TODO make the simulation end date configurable
 export const LumpSum: React.FC = () => {
@@ -17,14 +20,15 @@ export const LumpSum: React.FC = () => {
         const now = new Date().getTime();
         const lumpSumTime = lumpSumDate.getTime();
 
-        const result = tickerData.simulateLumpSumOverTime(lumpSumAmount, lumpSumTime, now);
+        const dateRange = new DateRange(lumpSumTime, now);
+        const result = Utils.simulateInvestment(tickerData, new TimeSeriesData([lumpSumAmount], [lumpSumTime]), dateRange);
 
         if (result === undefined) {
             setOutputColor("fail");
             setSummaryText(["No price data available for the provided date"]);
         } else {
             const summary = result.toDisplay();
-            const dateReadable = formatDate(lumpSumDate);
+            const dateReadable = Utils.formatDate(lumpSumDate);
             const summaryText = [
                 `If you invested $${summary.amountInvested} into ${tickerData.symbol} in ${dateReadable}, you would now have $${summary.finalValue}.`
             ].concat(summary.buildOutputStringArray());

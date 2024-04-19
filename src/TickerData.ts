@@ -13,33 +13,8 @@ export class StockData {
     }
 
     public getBuyPrice(timestamp: number): number {
-        const index = this.prices.getTimeIndex(timestamp, SnappingOption.BACKWARD);
-        return this.prices.values[index];
-    }
-
-    public simulateLumpSumOverTime(investmentAmount: number, timeToLumpSum: number, endTimestamp: number): InvestmentSummary | undefined {
-        if (this.prices.isTimeOutsideRange(timeToLumpSum)){
-            return undefined;
-        }
-
-        const startIndex = this.prices.getTimeIndex(timeToLumpSum);
-        const initialSharePrice = this.prices.values[startIndex];
-        const sharesOwned = investmentAmount / initialSharePrice;
-
-        const endIndex = this.prices.getTimeIndex(endTimestamp);
-        const endingPrice = this.prices.values[endIndex];
-
-        const startDividendIndex = this.dividends.getTimeIndex(timeToLumpSum, SnappingOption.FORWARD);
-        const endDividendIndex = this.dividends.getTimeIndex(endTimestamp, SnappingOption.BACKWARD);
-
-        let totalDividendsPaid = 0;
-        for (let i = startDividendIndex; i < endDividendIndex; i++) {
-            totalDividendsPaid += (this.dividends.values[i] * sharesOwned); 
-            i++;
-        }
-
-        const endPortfolioValue = (sharesOwned * endingPrice) + totalDividendsPaid;
-        return new InvestmentSummary(investmentAmount, endPortfolioValue, totalDividendsPaid);
+        const index = this.prices.indexAtTime(timestamp, SnappingOption.BACKWARD);
+        return this.prices.valueAt(index);
     }
 
     static async retrieveTickerInfo(tickerSymbol: string): Promise<StockData | Error> {
@@ -72,9 +47,15 @@ export class StockData {
 
         //TODO yahoo can return null as the last value... need to fix that
         var prices: number[] = finalJson.chart.result[0].indicators.quote[0].open;
+        //The element in the list will be the current months value. We only want data 
+        //from months in the past so the value is popped
+        prices.pop();
+
         prices = prices.map(p => parseFloat(p.toFixed(2)));
 
         const timesInSeconds: number[] = finalJson.chart.result[0].timestamp;
+        //The final time is popped for the same reason we pop the final price
+        timesInSeconds.pop()
         const priceData = new TimeSeriesData(prices, timesInSeconds.map(t => t * 1000));
 
         const events = finalJson.chart.result[0].events;

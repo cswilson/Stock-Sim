@@ -1,10 +1,5 @@
 import { useState } from "react";
 
-export const formatDate = (date: Date) => {
-    const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
-    return date.toLocaleString(undefined, options);
-}
-
 interface DatePickerProps {
     onDateChange: (date: Date) => void;
 }

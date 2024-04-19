@@ -2,24 +2,23 @@ import { useContext, useState } from "react";
 import PositiveNumberInput from "./PositiveNumberInput";
 import { DateUnit, DateUnitSelect } from "./DateUnit";
 import { TickerContext } from "./App";
-import { addMonths, isBefore } from "date-fns";
 import { StringListDisplay, StringListDisplayProps } from "./StringListDisplay";
-import { formatDate } from "./DatePicker";
 import { InvestmentSummary } from "./InvestmentSummary";
+import { DateRange } from "./DateRange";
+import { TimeSeriesData } from "./TimeSeriesData";
+import {Utils} from "./Utils";
 
 class IntervalResult {
-    public readonly startDate: Date;
-    public readonly endDate: Date;
+    public readonly dateRange: DateRange;
     public readonly investmentSummary: InvestmentSummary;
 
-    constructor(startDate: Date, endDate: Date, investmentSummary: InvestmentSummary) {
-        this.startDate = startDate;
-        this.endDate = endDate;
+    constructor(dateRange: DateRange, investmentSummary: InvestmentSummary) {
+        this.dateRange = dateRange;
         this.investmentSummary = investmentSummary;
     }
 
     public toString(): string {
-        return `${this.investmentSummary.percentGain.toFixed(2)}%. ${formatDate(this.startDate)} - ${formatDate(this.endDate)}`
+        return `${this.investmentSummary.percentGain.toFixed(2)}%. ${Utils.formatDate(this.dateRange.start)} - ${Utils.formatDate(this.dateRange.end)}`
     }
 }
 
@@ -30,7 +29,9 @@ export const BestAndWorstIntervals: React.FC = () => {
     const [intervalUnit, setIntervalUnit] = useState<DateUnit>(DateUnit.Months);
     const [stringListDisplayProps, setStringListDisplayProps] = useState<StringListDisplayProps>({ strings: [] });
 
+    //TODO potentially add dividend info?
     const calculateBestAndWorstIntervals = () => {
+
         const dateRange = tickerData.prices.getDateRange();
         if (dateRange === undefined) {
             //TODO print error message here?
@@ -38,17 +39,24 @@ export const BestAndWorstIntervals: React.FC = () => {
         }
 
         const monthsInInterval = intervalUnit === DateUnit.Months ? intervalLength : intervalLength * 12;
-
         const allIntervalResults: IntervalResult[] = [];
-        let currentStart = dateRange.start;
 
-        while (isBefore(currentStart, addMonths(dateRange.end, -monthsInInterval))) {
-            let end = addMonths(currentStart, monthsInInterval)
-            const summary = tickerData.simulateLumpSumOverTime(100, currentStart.getTime(), end.getTime());
-            if (summary) {
-                allIntervalResults.push(new IntervalResult(currentStart, end, summary))
-            }
-            currentStart = addMonths(currentStart, 1);
+        let startTimeIndex = 0;
+        while (startTimeIndex < tickerData.prices.length() - monthsInInterval){
+            let endTimeIndex = startTimeIndex + monthsInInterval;
+
+            let startTime = tickerData.prices.timeAt(startTimeIndex);
+            let endTime = tickerData.prices.timeAt(endTimeIndex);
+            const dateRange = new DateRange(startTime, endTime);
+
+            const summary = Utils.simulateInvestment(
+                tickerData,
+                new TimeSeriesData([100], [startTime]),
+                dateRange
+            )
+            allIntervalResults.push(new IntervalResult(dateRange, summary));
+
+            startTimeIndex++;
         }
 
         allIntervalResults.sort((a, b) => a.investmentSummary.percentGain - b.investmentSummary.percentGain);

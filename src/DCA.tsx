@@ -28,47 +28,47 @@ export const DCA: React.FC = () => {
         }
 
         //TODO don't do these calculations here, just use functions from TickerData
-        if (prices.isTimeOutsideRange(timestamp)) {
-            setOutputColor("fail");
-            //TODO print warning message
+        // if (prices.isTimeOutsideRange(timestamp)) {
+        //     setOutputColor("fail");
+        //     //TODO print warning message
 
-        } else {
+        // } else {
 
-            let totalSharesOwned = 0;
-            let currentTimestamp = timestamp;
-            let totalAmountInvested = 0;
-            while (!prices.isTimeOutsideRange(currentTimestamp)) {
-                const sharePrice = prices.values[prices.getTimeIndex(currentTimestamp)];
-                totalAmountInvested += dcaAmount;
-                totalSharesOwned += (dcaAmount / sharePrice);
+        //     let totalSharesOwned = 0;
+        //     let currentTimestamp = timestamp;
+        //     let totalAmountInvested = 0;
+        //     while (!prices.isTimeOutsideRange(currentTimestamp)) {
+        //         const sharePrice = prices.values[prices.indexAtTime(currentTimestamp)];
+        //         totalAmountInvested += dcaAmount;
+        //         totalSharesOwned += (dcaAmount / sharePrice);
 
-                if (incrementUnit == DateUnit.Months) {
-                    currentTimestamp = addMonths(new Date(currentTimestamp), increment).getTime();
-                } else {
-                    currentTimestamp = addYears(new Date(currentTimestamp), increment).getTime();
-                }
-            }
+        //         if (incrementUnit == DateUnit.Months) {
+        //             currentTimestamp = addMonths(new Date(currentTimestamp), increment).getTime();
+        //         } else {
+        //             currentTimestamp = addYears(new Date(currentTimestamp), increment).getTime();
+        //         }
+        //     }
 
-            const finalPortfolioValue = totalSharesOwned * prices.values[prices.values.length - 1];
+        //     const finalPortfolioValue = totalSharesOwned * prices.values[prices.values.length - 1];
 
-            const summary = new InvestmentSummary(totalAmountInvested, finalPortfolioValue, 0).toDisplay();
+        //     const summary = new InvestmentSummary(totalAmountInvested, finalPortfolioValue, 0).toDisplay();
 
-            let incrementUnitDisplay = incrementUnit.toString().toLocaleLowerCase();
-            if (increment == 1) {
-                incrementUnitDisplay = incrementUnitDisplay.slice(0, -1);
-            } else {
-                incrementUnitDisplay = increment.toString() + " " + incrementUnitDisplay; 
-            }
+        //     let incrementUnitDisplay = incrementUnit.toString().toLocaleLowerCase();
+        //     if (increment == 1) {
+        //         incrementUnitDisplay = incrementUnitDisplay.slice(0, -1);
+        //     } else {
+        //         incrementUnitDisplay = increment.toString() + " " + incrementUnitDisplay; 
+        //     }
 
-            setOutputColor(summary.outputColor);
-            //TODO include dividend payments in the summary
-            setSummaryText([
-                `If you invested $${dcaAmount} every ${incrementUnitDisplay} you would have now have: $${summary.finalValue}.`,
-                `Total Amount Invested: $${summary.amountInvested}`,
-                `Net Profit: $${summary.netGain}`,
-                `Percentage Gain: ${summary.percentGain}%`,
-            ])
-        }
+        //     setOutputColor(summary.outputColor);
+        //     //TODO include dividend payments in the summary
+        //     setSummaryText([
+        //         `If you invested $${dcaAmount} every ${incrementUnitDisplay} you would have now have: $${summary.finalValue}.`,
+        //         `Total Amount Invested: $${summary.amountInvested}`,
+        //         `Net Profit: $${summary.netGain}`,
+        //         `Percentage Gain: ${summary.percentGain}%`,
+        //     ])
+        // }
 
     }
 
