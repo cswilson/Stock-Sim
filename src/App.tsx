@@ -38,7 +38,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* TODO implement dividends */}
       <TickerContext.Provider value={tickerData}>
         <header className="bg-neutral-950 App-common App-body">
           <p className='text-5xl my-4 text-neutral-400'>Stock Sim</p>

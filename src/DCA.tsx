@@ -42,8 +42,6 @@ export const DCA: React.FC = () => {
             investmentDate = addMonths(investmentDate, incrementMonths);
         }
 
-        console.log(investmentEvents);
-
         const dateRange = new DateRange(initialDate.getTime(), new Date().getTime());
         const summary = Utils.simulateInvestment(tickerData, investmentEvents, dateRange).toDisplay();
 

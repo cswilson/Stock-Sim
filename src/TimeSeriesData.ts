@@ -41,7 +41,6 @@ export class TimeSeriesData {
         return this.dataPoints[index].timestamp;
     }
 
-    //TODO remove?
     public times(): number[] {
         return this.dataPoints.map(dp => dp.timestamp);
     }
@@ -59,7 +58,6 @@ export class TimeSeriesData {
         this.dataPoints.splice(insertionIndex, 0, newDataPoint);
     }
 
-    //TODO this probably doesn't need to be used in most places due to getBuyPrice() in TickerData
     public indexAtTime(targetTimestamp: number, snap: SnappingOption = SnappingOption.NONE): number {
         let left = 0;
         let right = this.length() - 1;
