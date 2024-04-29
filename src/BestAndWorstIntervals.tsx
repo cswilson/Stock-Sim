@@ -29,15 +29,7 @@ export const BestAndWorstIntervals: React.FC = () => {
     const [intervalUnit, setIntervalUnit] = useState<DateUnit>(DateUnit.Months);
     const [stringListDisplayProps, setStringListDisplayProps] = useState<StringListDisplayProps>({ strings: [] });
 
-    //TODO potentially add dividend info?
     const calculateBestAndWorstIntervals = () => {
-
-        const dateRange = tickerData.prices.getDateRange();
-        if (dateRange === undefined) {
-            //TODO print error message here?
-            return
-        }
-
         const monthsInInterval = intervalUnit === DateUnit.Months ? intervalLength : intervalLength * 12;
         const allIntervalResults: IntervalResult[] = [];
 

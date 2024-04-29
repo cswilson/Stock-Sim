@@ -67,7 +67,7 @@ export const DCA: React.FC = () => {
             </div>
             <div className="flex flex-row justify-center items-center mt-4 gap-4">
                 <p className="text-2xl ">Initial Investment Date: </p>
-                <DatePicker onDateChange={setInitialDate}></DatePicker>
+                <DatePicker onDateChange={setInitialDate} defaultToFirstDate={true}></DatePicker>
             </div>
             <div className="mt-4 flex flex-row justify-center items-center gap-4">
                 <p className="text-2xl">Reinvest Every: </p>

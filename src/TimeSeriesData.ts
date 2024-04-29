@@ -82,11 +82,13 @@ export class TimeSeriesData {
         }
     }
 
-    public getDateRange(): DateRange | undefined {
+    public getDateRange(): DateRange {
         if (this.length() == 0) {
-            return undefined;
+            return new DateRange(new Date(), new Date());
         }
-        return { start: new Date(this.timeAt(0)), end: new Date(this.timeAt(this.length() - 1)) };
+        const start = new Date(this.timeAt(0));
+        const end = new Date(this.timeAt(this.length() - 1));
+        return new DateRange(start, end);
     }
 
     public getDataInRange(dateRange: DateRange): DataPoint[] {

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import {Utils} from "./Utils";
+import { Utils } from "./Utils";
 import { DatePicker } from "./DatePicker"
 import { TickerContext } from "./App";
 import { DollarAmountInput } from "./DollarAmountInput";
@@ -8,19 +8,25 @@ import { StockData } from "./TickerData";
 import { DateRange } from "./DateRange";
 import { TimeSeriesData } from "./TimeSeriesData";
 
-//TODO make the simulation end date configurable
 export const LumpSum: React.FC = () => {
     const [lumpSumAmount, setLumpSumAmount] = useState(0);
     const tickerData = useContext<StockData>(TickerContext);
     const [lumpSumDate, setLumpSumDate] = useState<Date>(new Date());
+    const [simulationEndDate, setSimulationEndDate] = useState<Date>(new Date());
     const [outputColor, setOutputColor] = useState<string>("");
     const [summaryText, setSummaryText] = useState<string[]>([]);
 
     const calculateLumpSum = () => {
-        const now = new Date().getTime();
         const lumpSumTime = lumpSumDate.getTime();
+        const endTime = simulationEndDate.getTime();
 
-        const dateRange = new DateRange(lumpSumTime, now);
+        if (endTime < lumpSumTime) {
+            setOutputColor("fail");
+            setSummaryText(["The simulation end date must be after the investment date."]);
+            return;
+        }
+
+        const dateRange = new DateRange(lumpSumTime, endTime);
         const result = Utils.simulateInvestment(tickerData, new TimeSeriesData([lumpSumAmount], [lumpSumTime]), dateRange);
 
         if (result === undefined) {
@@ -28,9 +34,12 @@ export const LumpSum: React.FC = () => {
             setSummaryText(["Invalid Date Provided"]);
         } else {
             const summary = result.toDisplay();
-            const dateReadable = Utils.formatDate(lumpSumDate);
+
+            const lumpSumDateReadable = Utils.formatDate(lumpSumDate);
+            const endDateReadable = Utils.formatDate(simulationEndDate);
+
             const summaryText = [
-                `If you invested $${summary.amountInvested} into ${tickerData.symbol} in ${dateReadable}, you would now have $${summary.finalValue}.`
+                `If you invested $${summary.amountInvested} into ${tickerData.symbol} in ${lumpSumDateReadable} in ${endDateReadable} you would have $${summary.finalValue}`
             ].concat(summary.buildOutputStringArray());
 
             setOutputColor(summary.outputColor);
@@ -46,7 +55,11 @@ export const LumpSum: React.FC = () => {
             </div>
             <div className="flex flex-row justify-center items-center mt-4 gap-4">
                 <p className="text-2xl ">Investment Date: </p>
-                <DatePicker onDateChange={setLumpSumDate}></DatePicker>
+                <DatePicker onDateChange={setLumpSumDate} defaultToFirstDate={true}></DatePicker>
+            </div>
+            <div className="flex flex-row justify-center items-center mt-4 gap-4">
+                <p className="text-2xl ">Simulation End Date: </p>
+                <DatePicker onDateChange={setSimulationEndDate} defaultToFirstDate={false}></DatePicker>
             </div>
             <button className="btn mt-4" onClick={calculateLumpSum}>Calculate</button>
             <div className={`text-2xl ${outputColor}`}>

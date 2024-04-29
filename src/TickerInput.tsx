@@ -42,7 +42,7 @@ export const TickerInput: React.FC<TickerInputProps> = ({ onTickerSearch }) => {
             id="ticker"
             className="searchBox"
           />
-          <p className="text-neutral-500 mt-3 text-xs italic">Enter a stock ticker symbol, such as (VTI, VOO, VXUS)</p>
+          <p className="text-neutral-500 mt-3 text-xs italic">Enter a stock ticker symbol, such as (AAPL, MSFT, or NVDA)</p>
         </div>
       </form>
     </div>

@@ -13,7 +13,6 @@ function App() {
   const [tickerSearched, setTickerSearched] = useState<boolean>(false);
   const [foundTicker, setFoundTicker] = useState<boolean>(false);
 
-  //TODO IMPORTANT, figure out why ticker search fails with the string "TEST"
   const onTickerSearch = async (tickerSymbol: string) => {
     const tickerData = await StockData.retrieveTickerInfo(tickerSymbol);
     if (tickerData instanceof Error) {

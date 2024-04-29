@@ -1,51 +1,97 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { DateRange } from "./DateRange";
+import { StockData } from "./TickerData";
+import { TickerContext } from "./App";
 
 interface DatePickerProps {
     onDateChange: (date: Date) => void;
+    defaultToFirstDate: boolean
 }
 
-export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
-    //TODO don't default the date to now
-    const [date, setDate] = useState<Date>(new Date());
+interface Month { 
+    value: number,
+    name: string
+}
+
+const allMonths: Month[] = [
+    {value: 0, name: "Jan"},
+    {value: 1, name: "Feb"},
+    {value: 2, name: "Mar"},
+    {value: 3, name: "Apr"},
+    {value: 4, name: "May"},
+    {value: 5, name: "Jun"},
+    {value: 6, name: "Jul"},
+    {value: 7, name: "Aug"},
+    {value: 8, name: "Sep"},
+    {value: 9, name: "Oct"},
+    {value: 10, name: "Nov"},
+    {value: 11, name: "Dec"},
+]
+
+export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToFirstDate }) => {
+
+    const tickerData = useContext<StockData>(TickerContext);
+    const [dateRange, setDateRange] = useState<DateRange>(new DateRange(0, 0))
+    const [date, setDate] = useState<Date>(new Date())
+    const [years, setYears] = useState<number[]>([])
+    const [months, setMonths] = useState<Month[]>([])
+
+    useEffect(() => {
+        const newDateRange = tickerData.prices.getDateRange();
+        let defaultDate = defaultToFirstDate ? newDateRange.start : newDateRange.end;
+
+        updateDate(defaultDate, newDateRange);
+
+        const startYear = newDateRange.start.getFullYear();
+        const endYear = newDateRange.end.getFullYear();
+
+        const years = [];
+        for (let year = startYear; year <= endYear; year++) {
+            years.push(year);
+        }
+        setYears(years);
+
+    }, [tickerData])
+
+
+    const updateAvailableMonths = (currentDate: Date, dateRange: DateRange) => {
+        const startYear = dateRange.start.getFullYear();
+        const endYear = dateRange.end.getFullYear();
+
+        if (currentDate.getFullYear() == startYear) {
+            setMonths(allMonths.slice(dateRange.start.getMonth(), allMonths.length))
+        } else if (currentDate.getFullYear() == endYear) {
+            setMonths(allMonths.slice(0, dateRange.end.getMonth() + 1))
+        } else {
+            setMonths(allMonths)
+        }
+    }
 
     const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const { id, value } = event.target;
         const updatedDate = new Date(date.getFullYear(), date.getMonth(), 1);
         if (id === "month") { updatedDate.setMonth(parseInt(value));} 
         else if (id === "year") {updatedDate.setFullYear(parseInt(value));}
-        setDate(updatedDate);
-        onDateChange(updatedDate);
+        updateDate(updatedDate, dateRange);
     }
 
-    //TODO change years based on range of the data
-    const [years] = useState(() => {
-        const currentYear = new Date().getFullYear();
-        const yearsArray = [];
-        for (let year = currentYear; year >= currentYear - 10; year--) {
-            yearsArray.push({ value: year, label: year });
-        }
-        return yearsArray;
-    });
+    const updateDate = (newDate: Date, dateRange: DateRange) => {
+        setDate(newDate);
+        setDateRange(dateRange)
+        onDateChange(newDate);
+        updateAvailableMonths(newDate, dateRange);
+    }
 
     return (
         <div className="flex justify-center items-center gap-4">
             <select id="month" value={date.getMonth()} className="btn" onChange={handleDateChange}>
-                <option value={0}>Jan</option>
-                <option value={1}>Feb</option>
-                <option value={2}>Mar</option>
-                <option value={3}>Apr</option>
-                <option value={4}>May</option>
-                <option value={5}>Jun</option>
-                <option value={6}>Jul</option>
-                <option value={7}>Aug</option>
-                <option value={8}>Sep</option>
-                <option value={9}>Oct</option>
-                <option value={10}>Nov</option>
-                <option value={11}>Dec</option>
+                {months.map(month => (
+                    <option key={month.value} value={month.value}>{month.name}</option>
+                ))}
             </select>
             <select id="year" className="btn" value={date.getFullYear()} onChange={handleDateChange}>
                 {years.map(year => (
-                    <option key={year.value} value={year.value}>{year.label}</option>
+                    <option key={year} value={year}>{year}</option>
                 ))}
             </select>
         </div>

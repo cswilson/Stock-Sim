@@ -27,9 +27,8 @@ export namespace Utils {
             sharesOwned += currentEvent.value / stockToBuy.getBuyPrice(currentEvent.timestamp)
 
             const timeBetweenEvents = new DateRange(currentEvent.timestamp, nextInvestmentEventTime);
-            const relevantDividendEvents = stockToBuy.dividends.getDataInRange(timeBetweenEvents);
-
-            relevantDividendEvents.forEach(event => dividendsPaid += event.value);
+            const relevantDividends = stockToBuy.dividends.getDataInRange(timeBetweenEvents);
+            relevantDividends.forEach(event => dividendsPaid += (event.value * sharesOwned));
         }
 
         const amountInvested = relevantEvents.reduce((total, current) => total += current.value, 0);
