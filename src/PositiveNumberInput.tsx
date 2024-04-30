@@ -10,11 +10,17 @@ const PositiveNumberInput: React.FC<PositiveNumberInputProps> = ({ onUpdate, pla
   const [value, setValue] = useState<number>(defaultValue);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const inputValue = parseFloat(e.target.value);
-    if (!isNaN(inputValue) && inputValue >= 0) {
-      setValue(inputValue);
-      onUpdate(inputValue);
+    const desiredNumber = parseFloat(e.target.value);
+
+    let newValue = value;
+    if (isNaN(desiredNumber)) {
+      newValue = 0;
+    } else if (desiredNumber >= 0) {
+      newValue = desiredNumber
     }
+
+    setValue(newValue);
+    onUpdate(newValue);
   };
 
   return (
