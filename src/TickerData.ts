@@ -17,6 +17,7 @@ export class StockData {
         return this.prices.valueAt(index);
     }
 
+    //TODO IMPORTANT don't even store price info in terms of timestamps, just store them as Month/Year values, this makes things much simpler
     static async retrieveTickerInfo(tickerSymbol: string): Promise<StockData | Error> {
 
         try {

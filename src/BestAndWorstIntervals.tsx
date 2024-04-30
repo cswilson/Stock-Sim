@@ -22,6 +22,7 @@ class IntervalResult {
     }
 }
 
+//TODO this breaks if the interval is larger than the available dataset
 export const BestAndWorstIntervals: React.FC = () => {
 
     const tickerData = useContext(TickerContext);

@@ -6,9 +6,9 @@ import { TimeSeriesData } from "./TimeSeriesData";
 
 export namespace Utils {
     export const formatDate = (date: Date) => {
-        if (isLastDayOfMonth(date)){
-            date = addMonths(date, 1);
-        }
+        // if (isLastDayOfMonth(date)){
+        //     date = addMonths(date, 1);
+        // }
         const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
         return date.toLocaleString(undefined, options);
     }
@@ -23,7 +23,7 @@ export namespace Utils {
             const currentEvent = relevantEvents[i]
 
             const nextInvestmentEventTime = relevantEvents[i + 1]?.timestamp || dateRange.end.getTime();
-
+            
             sharesOwned += currentEvent.value / stockToBuy.getBuyPrice(currentEvent.timestamp)
 
             const timeBetweenEvents = new DateRange(currentEvent.timestamp, nextInvestmentEventTime);

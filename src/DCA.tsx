@@ -17,6 +17,7 @@ export const DCA: React.FC = () => {
     const tickerData = useContext<StockData>(TickerContext);
     const [dcaAmount, setDcaAmount] = useState<number>(0);
     const [initialDate, setInitialDate] = useState<Date>(new Date());
+    const [simulationEndDate, setSimulationEndDate] = useState<Date>(new Date());
     const [increment, setIncrement] = useState<number>(1);
     const [incrementUnit, setIncrementUnit] = useState<DateUnit>(DateUnit.Months);
     const [outputColor, setOutputColor] = useState<string>("");
@@ -42,7 +43,7 @@ export const DCA: React.FC = () => {
             investmentDate = addMonths(investmentDate, incrementMonths);
         }
 
-        const dateRange = new DateRange(initialDate.getTime(), new Date().getTime());
+        const dateRange = new DateRange(initialDate.getTime(), simulationEndDate.getTime());
         const summary = Utils.simulateInvestment(tickerData, investmentEvents, dateRange).toDisplay();
 
         let incrementUnitDisplay = incrementUnit.toString().toLocaleLowerCase();
@@ -53,7 +54,8 @@ export const DCA: React.FC = () => {
         }
 
         setSummaryText([
-            `If you invested $${dcaAmount} every ${incrementUnitDisplay} starting in ${Utils.formatDate(initialDate)} you would have now have: $${summary.finalValue}.`,
+            `If you invested $${dcaAmount} every ${incrementUnitDisplay} starting in ${Utils.formatDate(initialDate)} in ${Utils.formatDate(simulationEndDate)} you would have: $${summary.finalValue}.`,
+            `Amount Invested: $${summary.amountInvested}`
         ].concat(summary.buildOutputStringArray()))
         setOutputColor(summary.outputColor);
 
@@ -73,6 +75,10 @@ export const DCA: React.FC = () => {
                 <p className="text-2xl">Reinvest Every: </p>
                 <PositiveNumberInput onUpdate={setIncrement} placeHolderText="Enter Frequency" defaultValue={increment}/>
                 <DateUnitSelect onUpdate={setIncrementUnit}/>
+            </div>
+            <div className="flex flex-row justify-center items-center mt-4 gap-4">
+                <p className="text-2xl ">Simulation End Date: </p>
+                <DatePicker onDateChange={setSimulationEndDate} defaultToFirstDate={false}></DatePicker>
             </div>
             <button className="btn mt-4" onClick={calculateDCA}>Calculate</button>
             <div className={`text-2xl ${outputColor}`}>

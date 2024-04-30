@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { DateRange } from "./DateRange";
 import { StockData } from "./TickerData";
 import { TickerContext } from "./App";
+import { addMonths } from "date-fns";
 
 interface DatePickerProps {
     onDateChange: (date: Date) => void;
@@ -28,6 +29,7 @@ const allMonths: Month[] = [
     {value: 11, name: "Dec"},
 ]
 
+//TODO choose Jan of 2nd from first year then go and choose the earliest month in the first year and it breaks
 export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToFirstDate }) => {
 
     const tickerData = useContext<StockData>(TickerContext);
@@ -38,8 +40,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToF
 
     useEffect(() => {
         const newDateRange = tickerData.prices.getDateRange();
-        let defaultDate = defaultToFirstDate ? newDateRange.start : newDateRange.end;
 
+        //Since the month timestamps are at the end of each month the start month actually needs 
+        //to be the month after
+        const startMonth = addMonths(newDateRange.start, 1);
+        let defaultDate = defaultToFirstDate ? startMonth : newDateRange.end;
         updateDate(defaultDate, newDateRange);
 
         const startYear = newDateRange.start.getFullYear();
@@ -51,6 +56,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToF
         }
         setYears(years);
 
+
     }, [tickerData])
 
 
@@ -59,7 +65,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToF
         const endYear = dateRange.end.getFullYear();
 
         if (currentDate.getFullYear() == startYear) {
-            setMonths(allMonths.slice(dateRange.start.getMonth(), allMonths.length))
+            setMonths(allMonths.slice(dateRange.start.getMonth() + 1, allMonths.length))
         } else if (currentDate.getFullYear() == endYear) {
             setMonths(allMonths.slice(0, dateRange.end.getMonth() + 1))
         } else {
@@ -75,11 +81,18 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToF
         updateDate(updatedDate, dateRange);
     }
 
+    //TODO this is still snapping wrong 
     const updateDate = (newDate: Date, dateRange: DateRange) => {
-        setDate(newDate);
+        console.log("DR ", dateRange.start, dateRange.end);
+        // setDate(newDate);
+        // onDateChange(newDate);
         setDateRange(dateRange)
-        onDateChange(newDate);
         updateAvailableMonths(newDate, dateRange);
+
+        const snappedDate = dateRange.snapDateWithinRange(newDate);
+        setDate(snappedDate);
+        onDateChange(snappedDate);
+        
     }
 
     return (
