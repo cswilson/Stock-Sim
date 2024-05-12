@@ -1,3 +1,4 @@
+import { addMonths } from "date-fns";
 import { InvestmentSummary } from "./InvestmentSummary";
 import { SnappingOption, TimeSeriesData } from "./TimeSeriesData";
 
@@ -17,7 +18,6 @@ export class StockData {
         return this.prices.valueAt(index);
     }
 
-    //TODO IMPORTANT don't even store price info in terms of timestamps, just store them as Month/Year values, this makes things much simpler
     static async retrieveTickerInfo(tickerSymbol: string): Promise<StockData | Error> {
 
         try {
@@ -58,7 +58,17 @@ export class StockData {
             const timesInSeconds: number[] = finalJson.chart.result[0].timestamp;
             //The final time is popped for the same reason we pop the final price
             timesInSeconds.pop()
-            const priceData = new TimeSeriesData(prices, timesInSeconds.map(t => t * 1000));
+
+            //Yahoo returns prices on the last day of each month. To make things simpler the date is instead snapped to the first 
+            //day of the next month.
+            const convertedDates = timesInSeconds.map(t => {
+                const millis = t * 1000;
+                const date = new Date(millis);
+                const nextMonthDate = addMonths(date, 1);
+                return new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth()).getTime()
+            })
+
+            const priceData = new TimeSeriesData(prices, convertedDates);
 
             const events = finalJson.chart.result[0].events;
             let dividendData = undefined;

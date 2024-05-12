@@ -1,3 +1,5 @@
+import { addMonths, differenceInMonths } from "date-fns";
+
 export enum DateStatus {
     EARLY,
     WITHIN_RANGE,
@@ -31,5 +33,9 @@ export class DateRange {
         } else {
             return date;
         }
+    }
+
+    public totalMonths(): number {
+        return differenceInMonths(this.start, this.end);
     }
 }

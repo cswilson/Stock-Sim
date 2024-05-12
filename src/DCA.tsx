@@ -11,7 +11,6 @@ import { TimeSeriesData } from "./TimeSeriesData";
 import { DateRange } from "./DateRange";
 import { StockData } from "./TickerData";
 
-//TODO make the simulation end date configurable
 export const DCA: React.FC = () => {
 
     const tickerData = useContext<StockData>(TickerContext);

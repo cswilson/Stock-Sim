@@ -31,8 +31,14 @@ export const BestAndWorstIntervals: React.FC = () => {
     const [stringListDisplayProps, setStringListDisplayProps] = useState<StringListDisplayProps>({ strings: [] });
 
     const calculateBestAndWorstIntervals = () => {
-        const monthsInInterval = intervalUnit === DateUnit.Months ? intervalLength : intervalLength * 12;
+        let monthsInInterval = intervalUnit === DateUnit.Months ? intervalLength : intervalLength * 12;
         const allIntervalResults: IntervalResult[] = [];
+
+        //TODO fix error when user chosen date range is greater than the available months
+        const monthsInData = tickerData.prices.getDateRange().totalMonths();
+        if (monthsInInterval > monthsInData) {
+            monthsInInterval = monthsInData - 1;
+        }
 
         let startTimeIndex = 0;
         while (startTimeIndex < tickerData.prices.length() - monthsInInterval){
