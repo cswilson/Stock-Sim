@@ -7,6 +7,7 @@ import { SearchFailMessage } from './SearchFailMessage';
 
 export const TickerContext = React.createContext<StockData>(new StockData());
 
+//TODO fix rendering on very small displays
 function App() {
 
   const [tickerData, setTickerData] = useState<StockData>(new StockData());

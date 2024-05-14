@@ -20,11 +20,14 @@ export class StockData {
 
     static async retrieveTickerInfo(tickerSymbol: string): Promise<StockData | Error> {
 
-        try {
-            //TODO set this constant somewhere in npm config? not sure where to set it 
-            const TICKER_REQUEST_BASE: string = "http://localhost:4000/stock/";
+        const apiUrl = process.env.REACT_APP_API_URL;
+        console.log("URL: " + apiUrl);
+        if (apiUrl == undefined) {
+            throw new Error("REACT_APP_BACKEND_API_URL is not defined. Unable to retrieve ticker data.");
+        }
 
-            const baseRequestForTicker = TICKER_REQUEST_BASE + tickerSymbol;
+        try {
+            const baseRequestForTicker = apiUrl + `?ticker=${tickerSymbol}`;
 
             const response = await fetch(baseRequestForTicker);
             if (!response.ok) {
@@ -38,8 +41,7 @@ export class StockData {
             const now = Date.now();
             // const now = 1611944000;
 
-            //TODO hardcode 1 month interval in the backend express server
-            const fullQuery = baseRequestForTicker + `?period1=${firstTradeDate}&period2=${now}&interval=1mo`;
+            const fullQuery = baseRequestForTicker + `&period1=${firstTradeDate}&period2=${now}`;
 
             const fullResponse = await fetch(fullQuery);
             if (!fullResponse.ok) {
