@@ -36,6 +36,6 @@ export class DateRange {
     }
 
     public totalMonths(): number {
-        return differenceInMonths(this.start, this.end);
+        return differenceInMonths(this.end, this.start);
     }
 }
