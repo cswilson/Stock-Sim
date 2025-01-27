@@ -6,7 +6,7 @@ import { StringListDisplay, StringListDisplayProps } from "./StringListDisplay";
 import { InvestmentSummary } from "./InvestmentSummary";
 import { DateRange } from "./DateRange";
 import { TimeSeriesData } from "./TimeSeriesData";
-import {Utils} from "./Utils";
+import { Utils } from "./Utils";
 
 class IntervalResult {
     public readonly dateRange: DateRange;
@@ -22,7 +22,6 @@ class IntervalResult {
     }
 }
 
-//TODO this breaks if the interval is larger than the available dataset
 export const BestAndWorstIntervals: React.FC = () => {
 
     const tickerData = useContext(TickerContext);
@@ -37,7 +36,13 @@ export const BestAndWorstIntervals: React.FC = () => {
         //TODO fix error when user chosen date range is greater than the available months
         const monthsInData = tickerData.prices.getDateRange().totalMonths();
         if (monthsInInterval > monthsInData) {
-            monthsInInterval = monthsInData - 1;
+            setStringListDisplayProps(
+                {
+                    strings: ["Interval length is too large."],
+                    perStringStyling: ["fail"]
+                }
+            )
+            return;
         }
 
         let startTimeIndex = 0;
