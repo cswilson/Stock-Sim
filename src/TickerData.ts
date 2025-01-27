@@ -23,32 +23,19 @@ export class StockData {
         const apiUrl = process.env.REACT_APP_API_URL;
         console.log("URL: " + apiUrl);
         if (apiUrl == undefined) {
-            throw new Error("REACT_APP_BACKEND_API_URL is not defined. Unable to retrieve ticker data.");
+            throw new Error("REACT_APP_API_URL is not defined. Unable to retrieve ticker data.");
         }
 
         try {
-            const baseRequestForTicker = apiUrl + `?ticker=${tickerSymbol}`;
+            const query = apiUrl + `?ticker=${tickerSymbol}` + `&period1=${0}&period2=${Date.now()}`;
 
-            const response = await fetch(baseRequestForTicker);
+            const response = await fetch(query);
+
             if (!response.ok) {
-                return new Error("Failed to fetch data for initial ticker request: " + baseRequestForTicker);
+                return new Error("Failed to fetch data for full ticker request: " + query);
             }
 
-            const json = await response.json();
-            const firstTradeDate = json.chart.result[0].meta.firstTradeDate;
-            //TODO VERY IMPORTANT: on rare occasions yahoo will return a price array with nulls at the end (seemed to happen on April 1st, but I can't replicate it)
-            //need to add something to work around that
-            const now = Date.now();
-            // const now = 1611944000;
-
-            const fullQuery = baseRequestForTicker + `&period1=${firstTradeDate}&period2=${now}`;
-
-            const fullResponse = await fetch(fullQuery);
-            if (!fullResponse.ok) {
-                return new Error("Failed to fetch data for full ticker request: " + fullQuery);
-            }
-
-            const finalJson = await fullResponse.json();
+            const finalJson = await response.json();
 
             //TODO yahoo can return null as the last value... need to fix that
             var prices: number[] = finalJson.chart.result[0].indicators.quote[0].open;
@@ -61,7 +48,7 @@ export class StockData {
             //The final time is popped for the same reason we pop the final price
             timesInSeconds.pop()
 
-            //Yahoo returns prices on the last day of each month. To make things simpler the date is instead snapped to the first 
+            //Yahoo returns prices on the last day of each month. To simplify things the date is instead snapped to the first 
             //day of the next month.
             const convertedDates = timesInSeconds.map(t => {
                 const millis = t * 1000;
