@@ -5,7 +5,7 @@ Stock Sim is a tool that enables users to calculate the returns of specific asse
 
 ![image](assets/main.png)
 
-Users may search for assets using their ticker symbol. This search is not just limited to individual stocks. ETFs/Mutual Funds and even certain popular cryptocurrencies are supported. Once an asset is chosen, a chart displaying its price over time is displayed. From this point the user can choose between three different types of simulations, which are detailed below
+Users can search for assets using their ticker symbol. This search includes not only individual stocks but also ETFs, mutual funds, and certain popular cryptocurrencies. Once an asset is chosen, a chart showing its price over time appears. From this point, the user can choose between three different types of simulations, which are detailed below.
 
 ![image](assets/priceHistory.png)
 
@@ -20,6 +20,6 @@ Similar to "Lump Sum", but instead of investing all the money at once, the provi
 ![image](assets/dca.png)
 
 # Best/Worst Intervals
-Given an interval length, calculates return percentiles for periods of that length. 
+Given a specified interval length, calculates return percentiles for periods of that length. 
 
 ![image](assets/intervals.png)
