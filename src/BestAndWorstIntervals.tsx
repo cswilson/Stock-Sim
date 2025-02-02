@@ -33,7 +33,6 @@ export const BestAndWorstIntervals: React.FC = () => {
         let monthsInInterval = intervalUnit === DateUnit.Months ? intervalLength : intervalLength * 12;
         const allIntervalResults: IntervalResult[] = [];
 
-        //TODO fix error when user chosen date range is greater than the available months
         const monthsInData = tickerData.prices.getDateRange().totalMonths();
         if (monthsInInterval > monthsInData) {
             setStringListDisplayProps(

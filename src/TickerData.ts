@@ -1,5 +1,4 @@
 import { addMonths } from "date-fns";
-import { InvestmentSummary } from "./InvestmentSummary";
 import { SnappingOption, TimeSeriesData } from "./TimeSeriesData";
 
 export class StockData {
@@ -37,7 +36,7 @@ export class StockData {
 
             const finalJson = await response.json();
 
-            //TODO yahoo can return null as the last value... need to fix that
+            //Note: on rare occassions yahoo can return null as the last value
             var prices: number[] = finalJson.chart.result[0].indicators.quote[0].open;
             //The final element in the list will be the value of the current month. We only want data 
             //from months that have already passed so the final value is popped.

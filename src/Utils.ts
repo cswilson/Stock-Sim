@@ -6,9 +6,6 @@ import { TimeSeriesData } from "./TimeSeriesData";
 
 export namespace Utils {
     export const formatDate = (date: Date) => {
-        // if (isLastDayOfMonth(date)){
-        //     date = addMonths(date, 1);
-        // }
         const options: Intl.DateTimeFormatOptions = { month: 'short', year: 'numeric' };
         return date.toLocaleString(undefined, options);
     }
