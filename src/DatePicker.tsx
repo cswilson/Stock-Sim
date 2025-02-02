@@ -76,11 +76,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({ onDateChange, defaultToF
         updateDate(updatedDate, dateRange);
     }
 
-    //TODO this is still snapping wrong 
     const updateDate = (newDate: Date, dateRange: DateRange) => {
         console.log("DR ", dateRange.start, dateRange.end);
-        // setDate(newDate);
-        // onDateChange(newDate);
         setDateRange(dateRange)
         updateAvailableMonths(newDate, dateRange);
 
