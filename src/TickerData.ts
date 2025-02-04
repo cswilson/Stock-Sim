@@ -36,16 +36,25 @@ export class StockData {
 
             const finalJson = await response.json();
 
-            //Note: on rare occassions yahoo can return null as the last value
-            var prices: number[] = finalJson.chart.result[0].indicators.quote[0].open;
+            var nullPrices: (number | null)[] = finalJson.chart.result[0].indicators.quote[0].open;
             //The final element in the list will be the value of the current month. We only want data 
             //from months that have already passed so the final value is popped.
-            prices.pop();
+            nullPrices.pop();
+
+            //If the start of a month begins with a weekend, Yahoo will sometimes return null values near the end of price array.
+            //If the array contains null values, the array needs to be sliced to the element before the null.
+            var prices: number[]
+            if (nullPrices.includes(null)) {
+                prices = nullPrices.slice(0, nullPrices.indexOf(null)) as number[];
+            } else {
+                prices = nullPrices as number[]
+            }
+
             prices = prices.map(p => parseFloat(p.toFixed(2)));
 
-            const timesInSeconds: number[] = finalJson.chart.result[0].timestamp;
-            //The final time is popped for the same reason we pop the final price
-            timesInSeconds.pop()
+            var timesInSeconds: number[] = finalJson.chart.result[0].timestamp;
+            //The list of times is sliced to ensure that it is the same length as the prices
+            timesInSeconds = timesInSeconds.slice(0, prices.length);
 
             //Yahoo returns prices on the last day of each month. To simplify things the date is instead snapped to the first 
             //day of the next month.
