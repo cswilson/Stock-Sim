@@ -92,6 +92,11 @@ export class TimeSeriesData {
     }
 
     public getDataInRange(dateRange: DateRange): DataPoint[] {
+
+        if (this.dataPoints.length == 0) {
+            return [];
+        }
+
         const startIndex = this.indexAtTime(dateRange.start.getTime(), SnappingOption.FORWARD);
         const endIndex = this.indexAtTime(dateRange.end.getTime(), SnappingOption.BACKWARD);
         return this.dataPoints.slice(startIndex, endIndex + 1);
