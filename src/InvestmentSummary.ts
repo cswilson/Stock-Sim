@@ -12,7 +12,6 @@ export class InvestmentSummary {
         this.amountInvested = amountInvested;
         this.finalValue = finalValue;
         this.dividendIncome = dividendIncome;
-        this.amountInvested = amountInvested;
         this.netGain = finalValue - amountInvested;
         this.capitalAppreciation = this.netGain - dividendIncome;
         this.percentGain = ((finalValue / amountInvested) * 100) - 100;
